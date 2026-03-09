@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    </head>
+<body class="{% if user_pref_dark %}dark-mode{% endif %}">
+    <nav class="sidebar shadow-sm">
+        </nav>
+
+    <main class="main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    </body>
+</html>

@@ -1,0 +1,474 @@
+{% load socialaccount %}
+{% load static %} 
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillAI – Bridge Your Skill Gap with AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <style>
+        :root {
+    --primary-purple: #a78bfa;      /* main gradient purple */
+    --primary-pink: #f472b6;        /* pink accent */
+    --primary-dark: #7c3aed;        /* strong purple */
+    --primary-indigo: #6366f1;      /* indigo accent */
+    --bright-pink: #ec4899;         /* bright pink */
+    --dark-indigo: #1e1b4b;         /* main dark text */
+    --ai-dark: #312e81;             /* AI gradient dark */
+    --text-muted: #64748b;          /* muted text */
+    --bg-soft: #fdf2f8;             /* page background */
+    --stroke-light: #f1f5f9;        /* circle stroke */
+    --white: #ffffff;
+
+    --primary-gradient: linear-gradient(135deg, #a78bfa, #f472b6);
+    --ai-gradient: linear-gradient(135deg, #1e1b4b, #312e81);
+
+    --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-soft);
+            color: var(--dark-indigo);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ======================
+           ANIMATIONS
+        ====================== */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: var(--transition);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ======================
+           NAVBAR
+        ====================== */
+        nav {
+            position: sticky;
+            top: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 8%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            box-shadow: 0 6px 18px rgba(167,139,250,0.35);
+            transition: var(--transition);
+        }
+
+        .logo-icon i { color: white; font-size: 18px; }
+
+        .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
+
+        .brand-name {
+            font-size: 20px;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-tagline { font-size: 11px; color: var(--text-muted); letter-spacing: 0.5px; font-weight: 600; }
+
+        .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover { color: var(--primary); }
+
+        .nav-auth { display: flex; align-items: center; gap: 1.5rem; }
+
+        .btn-login {
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 0.8rem 1.8rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 15px rgba(167,139,250,0.3);
+            transition: var(--transition);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(167,139,250,0.4);
+            filter: brightness(1.1);
+        }
+
+        /* ======================
+           HERO SECTION
+        ====================== */
+        .hero {
+            position: relative;
+            padding: 8rem 8% 10rem;
+            text-align: center;
+            background: radial-gradient(circle at 50% -20%, #fdf2f8 0%, #ffffff 80%);
+            overflow: hidden;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.5rem 1.2rem;
+            background: rgba(79, 70, 229, 0.08);
+            color: var(--primary);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -2px;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 3rem;
+        }
+
+        .hero-btns { display: flex; justify-content: center; gap: 1rem; }
+
+        .floating-shape {
+            position: absolute;
+            z-index: -1;
+            background: var(--primary-gradient);
+            filter: blur(80px);
+            opacity: 0.1;
+            border-radius: 50%;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        /* ======================
+           FEATURES
+        ====================== */
+        .features { padding: 8rem 8%; background: var(--bg-light); }
+
+        .section-header { text-align: center; margin-bottom: 5rem; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+
+        .card {
+            background: var(--white);
+            padding: 3rem 2rem;
+            border-radius: 24px;
+            box-shadow: var(--shadow-soft);
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-12px);
+            box-shadow: var(--shadow-hover);
+            border-color: rgba(167,139,250,0.15);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(167, 139, 250, 0.08);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .card h3 { font-size: 1.5rem; margin-bottom: 1rem; font-weight: 800; }
+        .card p { color: var(--text-muted); font-size: 1rem; }
+
+        /* ======================
+           HOW IT WORKS
+        ====================== */
+        .how-it-works { padding: 8rem 8%; }
+
+        .step-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            position: relative;
+        }
+
+        .step { text-align: center; position: relative; }
+
+        .step-num {
+            width: 50px;
+            height: 50px;
+            background: var(--white);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-weight: 900;
+            z-index: 2;
+            position: relative;
+        }
+
+        /* ======================
+           CTA SECTION
+        ====================== */
+        .cta {
+            margin: 0 8% 8rem;
+            padding: 6rem;
+            background: var(--primary-gradient);
+            border-radius: 40px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 20px 40px rgba(167,139,250,0.3);
+        }
+
+        .cta h2 { font-size: 3.5rem; font-weight: 900; margin-bottom: 1.5rem; }
+
+        .btn-white {
+            background: white;
+            color: var(--primary);
+            padding: 1rem 2.5rem;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 800;
+            display: inline-block;
+            transition: var(--transition);
+        }
+
+        .btn-white:hover { transform: scale(1.05); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+
+        /* ======================
+           FOOTER
+        ====================== */
+        footer { padding: 5rem 8% 3rem; background: #0f172a; color: white; }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 4rem; margin-bottom: 4rem; }
+        .footer-links a { color: #94a3b8; text-decoration: none; display: block; margin-bottom: 1rem; transition: var(--transition); }
+        .footer-links a:hover { color: white; }
+        .copyright { border-top: 1px solid rgba(255,255,255,0.05); padding-top: 2rem; text-align: center; color: #64748b; font-size: 0.9rem; }
+
+        @media (max-width: 1024px) {
+            .hero h1 { font-size: 3rem; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+            .step-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="floating-shape" style="width: 400px; height: 400px; top: -100px; right: -100px;"></div>
+    <div class="floating-shape" style="width: 300px; height: 300px; bottom: 20%; left: -50px; animation-delay: 2s;"></div>
+
+    <nav>
+        <a href="/" class="brand">
+            <div class="logo-icon">
+                <i class="fa-solid fa-brain"></i>
+            </div>
+            <div class="brand-text">
+                <span class="brand-name">SkillAI</span>
+                <small class="brand-tagline">AI CAREER ENGINE</small>
+            </div>
+        </a>
+        <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        <div class="nav-auth">
+            <a href="{% url 'account_login' %}" class="btn-login">Login</a>
+            <a href="{% url 'account_signup' %}" class="btn-primary">Get Started</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-badge reveal">Powered by Generative AI</div>
+        <h1 class="reveal">Bridge Your Skill Gap <br> <span style="color: var(--primary)">with AI Intelligence</span></h1>
+        <p class="reveal">SkillAI uses advanced NLP and KNN algorithms to scan your resume, detect technical gaps, and generate the perfect learning roadmap for your dream job.</p>
+        <div class="hero-btns reveal">
+            <a href="{% url 'account_signup' %}" class="btn-primary" style="padding: 1.2rem 2.5rem; font-size: 1.1rem;">Start Free Analysis</a>
+            <a href="{% url 'account_login' %}" class="btn-white" style="border: 2px solid #e2e8f0; padding: 1.1rem 2.5rem;">Member Login</a>
+        </div>
+    </header>
+
+    <section id="features" class="features">
+        <div class="section-header reveal">
+            <h2 style="font-size: 2.5rem; font-weight: 900;">Intelligence at Every Step</h2>
+            <p style="color: var(--text-muted);">Our engine combines four core modules to automate your career growth.</p>
+        </div>
+        <div class="grid">
+            <div class="card reveal">
+                <div class="card-icon"><i class="fa-solid fa-file-invoice"></i></div>
+                <h3>Skill Extraction</h3>
+                <p>Advanced NLP models extract technical skills, tools, and experience directly from your PDF or Word resume.</p>
+            </div>
+            <div class="card reveal">
+                <div class="card-icon"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+                <h3>Gap Detection</h3>
+                <p>Our AI compares your profile against live industry requirements to find exactly what you're missing.</p>
+            </div>
+            <div class="card reveal">
+                <div class="card-icon"><i class="fa-solid fa-route"></i></div>
+                <h3>Learning Roadmaps</h3>
+                <p>Get a personalized week-by-week plan with hand-picked resources to master missing skills.</p>
+            </div>
+            <div class="card reveal">
+                <div class="card-icon"><i class="fa-solid fa-briefcase"></i></div>
+                <h3>Role Matching</h3>
+                <p>Using KNN algorithms, we match your current profile to job roles where you have the highest success probability.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="how-it-works" class="how-it-works">
+        <div class="section-header reveal">
+            <h2 style="font-size: 2.5rem; font-weight: 900;">How It Works</h2>
+        </div>
+        <div class="step-grid">
+            <div class="step reveal">
+                <div class="step-num">1</div>
+                <h4 style="font-weight: 800;">Upload Profile</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Import your resume or manually list your tech stack.</p>
+            </div>
+            <div class="step reveal">
+                <div class="step-num">2</div>
+                <h4 style="font-weight: 800;">Select Target</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Pick the job role you are aiming for (e.g. Data Scientist).</p>
+            </div>
+            <div class="step reveal">
+                <div class="step-num">3</div>
+                <h4 style="font-weight: 800;">AI Analysis</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">AI identifies missing skills and industry trends.</p>
+            </div>
+            <div class="step reveal">
+                <div class="step-num">4</div>
+                <h4 style="font-weight: 800;">Get Result</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Download your custom roadmap and start learning.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta reveal">
+        <h2>Ready to Level Up?</h2>
+        <p style="margin-bottom: 2.5rem; font-size: 1.1rem; opacity: 0.9;">Join 10,000+ developers using SkillAI to optimize their career paths.</p>
+        <a href="{% url 'account_signup' %}" class="btn-white">Create My Free Account</a>
+    </section>
+
+    <footer>
+        <div class="footer-grid">
+            <div>
+                <a href="/" class="brand" style="margin-bottom: 1.5rem;">
+                    <div class="logo-icon"><i class="fa-solid fa-brain"></i></div>
+                    <span class="brand-name" style="background: white; -webkit-text-fill-color: white;">SkillAI</span>
+                </a>
+                <p style="color: #94a3b8;">The next-generation career engine for developers and technical professionals.</p>
+            </div>
+            <div class="footer-links">
+                <h5 style="margin-bottom: 1.5rem; font-weight: 800;">Platform</h5>
+                <a href="#">Features</a>
+                <a href="#">Analysis Engine</a>
+                <a href="#">Roadmaps</a>
+            </div>
+            <div class="footer-links">
+                <h5 style="margin-bottom: 1.5rem; font-weight: 800;">Company</h5>
+                <a href="#">About Us</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Contact</a>
+            </div>
+            <div class="footer-links">
+                <h5 style="margin-bottom: 1.5rem; font-weight: 800;">Social</h5>
+                <a href="#">LinkedIn</a>
+                <a href="#">Twitter</a>
+                <a href="#">GitHub</a>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2026 SkillAI Platform. Built for the future of tech.
+        </div>
+    </footer>
+
+    <script>
+        // Intersection Observer for scroll animations
+        const observerOptions = { threshold: 0.1 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-grad: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
+        --dark-bg: #1e1b4b;
+        --glass: rgba(255, 255, 255, 0.9);
+    }
+
+    body { background-color: #fdf2f8; font-family: 'Inter', sans-serif; }
+
+    /* Roadmap Container */
+    .roadmap-container {
+        position: relative;
+        padding-left: 3rem;
+        margin-top: 2rem;
+    }
+
+    /* Vertical Line */
+    .roadmap-container::before {
+        content: '';
+        position: absolute;
+        left: 0.75rem;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--primary-grad);
+        border-radius: 10px;
+        opacity: 0.3;
+    }
+
+    /* Roadmap Step Node */
+    .roadmap-step {
+        position: relative;
+        margin-bottom: 3rem;
+        animation: slideIn 0.5s ease forwards;
+        opacity: 0;
+    }
+
+    @keyframes slideIn {
+        from { transform: translateX(-20px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    .roadmap-node {
+        position: absolute;
+        left: -3rem;
+        width: 2rem;
+        height: 2rem;
+        background: var(--primary-grad);
+        border: 4px solid #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        box-shadow: 0 0 15px rgba(167, 139, 250, 0.4);
+        z-index: 1;
+    }
+
+    /* Professional Glass Card */
+    .learning-card {
+        background: var(--glass);
+        backdrop-filter: blur(10px);
+        border: 1px solid #e2e8f0;
+        border-radius: 1.5rem;
+        padding: 1.5rem;
+        box-shadow: 0 8px 32px rgba(167, 139, 250, 0.05);
+        transition: transform 0.3s ease;
+    }
+
+    .learning-card:hover {
+        transform: scale(1.02);
+        border-color: #f472b6;
+    }
+
+    .resource-badge {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        display: inline-block;
+    }
+
+    .bg-youtube { background: #fee2e2; color: #dc2626; }
+    .bg-doc { background: #e0f2fe; color: #0284c7; }
+    .bg-project { background: #f0fdf4; color: #16a34a; }
+
+    .gradient-heading {
+        background: var(--primary-grad);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="gradient-heading display-5">Your SkillAI Roadmap</h1>
+        <p class="text-muted fs-5">An AI-curated journey to bridge your gap to becoming a Senior Developer.</p>
+    </div>
+
+    {% if weak_skills %}
+        <div class="roadmap-container mx-auto" style="max-width: 800px;">
+            {% for skill in weak_skills %}
+            <div class="roadmap-step" style="animation-delay: {{ forloop.counter0|add:1 }}s;">
+                <div class="roadmap-node">{{ forloop.counter }}</div>
+                
+                <div class="learning-card">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h4 class="fw-bold mb-1">{{ skill.skill.name }}</h4>
+                            <span class="text-muted small">Current Level: {{ skill.level }} / 5</span>
+                        </div>
+                        <span class="badge rounded-pill" style="background: var(--primary-grad);">Recommended</span>
+                    </div>
+
+                    <p class="small text-secondary mb-4">
+                        To master this skill, we've identified the best resources from our database.
+                    </p>
+
+                    <div class="resource-links">
+                        <h6 class="fw-bold small text-uppercase mb-3">Curated Resources:</h6>
+                        
+                        <a href="#" class="resource-badge bg-youtube text-decoration-none">
+                            <i class="bi bi-play-circle-fill me-1"></i> Video Tutorial
+                        </a>
+                        <a href="#" class="resource-badge bg-doc text-decoration-none">
+                            <i class="bi bi-file-earmark-text-fill me-1"></i> Documentation
+                        </a>
+                        <a href="#" class="resource-badge bg-project text-decoration-none">
+                            <i class="bi bi-code-slash me-1"></i> Practice Project
+                        </a>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+                        <div class="small fw-bold text-muted">Estimated: 2 Weeks</div>
+                        <button class="btn btn-sm btn-outline-primary px-3 rounded-pill">Mark as Complete</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <div class="glass-card d-inline-block p-5">
+                <h1 class="display-1">🎉</h1>
+                <h2 class="fw-bold mt-3">All Clear!</h2>
+                <p class="text-muted">You have no significant skill gaps. Keep pushing boundaries!</p>
+                <a href="{% url 'skills' %}" class="btn btn-primary-gradient mt-3">Update My Skills</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<style>
+    :root {
+        --primary-grad: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
+        --bg-page: #fdf2f8;
+        --text-main: #1e1b4b;
+    }
+
+    body { background-color: var(--bg-page); color: var(--text-main); font-family: 'Inter', sans-serif; }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(12px);
+        border: 1px solid #e2e8f0;
+        border-radius: 1.5rem;
+        box-shadow: 0 10px 30px rgba(167, 139, 250, 0.1);
+        padding: 2rem;
+        transition: transform 0.3s ease;
+    }
+
+    .gradient-text {
+        background: var(--primary-grad);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+    }
+
+    /* Custom Styling for Select2 Dropdown */
+    .select2-container--default .select2-selection--single {
+        border-radius: 0.75rem;
+        border: 1px solid #e2e8f0;
+        height: 50px;
+        padding-top: 10px;
+    }
+
+    .btn-primary-gradient {
+        background: var(--primary-grad);
+        border: none;
+        color: white;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        transition: 0.3s;
+    }
+
+    .btn-primary-gradient:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(244, 114, 182, 0.3); }
+
+    
+    .level-bar-fill {
+    height: 100%;
+    background: var(--primary-grad);
+    border-radius: 4px;
+    transition: width 1s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Shimmer effect */
+.level-bar-fill::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: progress-shimmer 2s infinite;
+}
+
+@keyframes progress-shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+</style>
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="gradient-text mb-1">My Skill DNA</h1>
+            <p class="text-muted">Analyze your MCA expertise and bridge the gaps.</p>
+        </div>
+        <form action="{% url 'upload_resume' %}" method="POST" enctype="multipart/form-data" id="resumeForm">
+    {% csrf_token %}
+    <input type="file" name="resume" id="resumeInput" hidden onchange="handleAutoSubmit()">
+    
+    <button type="button" class="btn btn-outline-secondary px-4" style="border-radius: 0.75rem;" onclick="document.getElementById('resumeInput').click()">
+        <i class="bi bi-cloud-arrow-up-fill me-2"></i> Upload Resume
+    </button>
+</form>
+
+<script>
+    function handleAutoSubmit() {
+    const fileInput = document.getElementById('resumeInput');
+    const form = document.getElementById('resumeForm');
+    const uploadBtn = document.querySelector('button[onclick*="resumeInput"]');
+    
+    if (fileInput.files.length > 0) {
+        // Change button to show AI is working
+        uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Analyzing...';
+        uploadBtn.classList.add('disabled');
+        uploadBtn.style.opacity = "0.7";
+        
+        console.log("File detected, auto-uploading to SkillAI...");
+        form.submit(); 
+    }
+}
+</script>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="glass-card mb-4">
+                <h5 class="fw-bold mb-4">Add Skill</h5>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Select Skill</label>
+                            <select name="skill_name" class="form-control select2-dropdown">
+                                <option value="Python">Python</option>
+                                <option value="Django">Django</option>
+                                <option value="Go">Go (Golang)</option>
+                                <option value="PostgreSQL">PostgreSQL</option>
+                                <option value="React">React</option>
+                                <option value="Docker">Docker</option>
+                                <option value="AWS">AWS</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Level</label>
+                            <select name="level" class="form-select" style="height: 50px; border-radius: 0.75rem;">
+                                <option value="1">Beginner</option>
+                                <option value="2">Basic</option>
+                                <option value="3">Intermediate</option>
+                                <option value="4">Advanced</option>
+                                <option value="5">Expert</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary-gradient w-100" style="height: 50px;">Add</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="glass-card">
+                <h5 class="fw-bold mb-4">Skill Inventory</h5>
+                <div class="table-responsive">
+                    <table class="table table-borderless align-middle">
+                        <tbody>
+                            {% for skill in skills %}
+                            <tr class="border-bottom">
+                                <td class="fw-bold py-3">{{ skill.skill.name }}</td>
+                                <td style="width: 50%;">
+                                    <div style="height: 8px; background: #f1f5f9; border-radius: 10px;">
+                                        <div class="level-bar-fill" style="width: calc(({{ skill.level }} / 5) * 100%);"></div>
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm text-primary"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm text-danger"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="glass-card">
+                <h5 class="fw-bold mb-4 text-center">Skill Visualization</h5>
+                <div style="position: relative; height: 350px;">
+                    <canvas id="skillsRadarChart"></canvas>
+                </div>
+                
+                <div class="mt-4 p-3" style="background: #fbcfe8; border-radius: 1rem; border-left: 5px solid #f472b6;">
+                    <p class="mb-0 small fw-bold">
+                        🚀 AI Insight: You're strong in Python. Learning Docker could increase your hireability by 40%!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Initialize Searchable Dropdown
+        $('.select2-dropdown').select2({
+            placeholder: "Search for a skill...",
+            width: '100%'
+        });
+
+        // Chart.js Radar Implementation
+        const ctx = document.getElementById('skillsRadarChart').getContext('2d');
+        
+        // Data from Django
+        const labels = [{% for skill in skills %}"{{ skill.skill.name }}",{% endfor %}];
+        const dataValues = [{% for skill in skills %}{{ skill.level }},{% endfor %}];
+
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: labels.length ? labels : ["Add", "Skills", "To", "See", "Graph"],
+                datasets: [{
+                    label: 'Mastery Level',
+                    data: dataValues.length ? dataValues : [0,0,0,0,0],
+                    fill: true,
+                    backgroundColor: 'rgba(167, 139, 250, 0.2)',
+                    borderColor: '#a78bfa',
+                    pointBackgroundColor: '#f472b6',
+                    pointBorderColor: '#fff',
+                }]
+            },
+            options: {
+                scales: {
+                    r: {
+                        suggestedMin: 0,
+                        suggestedMax: 5,
+                        ticks: { display: false, stepSize: 1 }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    });
+</script>
+{% endblock %}

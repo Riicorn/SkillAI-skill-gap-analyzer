@@ -1,0 +1,302 @@
+{% extends 'accounts/auth_base.html' %}
+{% load static %}
+
+{% block auth_content %}
+<div class="onboarding-fullscreen">
+    <div class="glow-sphere"></div>
+    
+    <div class="onboarding-container">
+        <div class="onboarding-sidebar">
+            <div class="brand-box">
+                <div class="logo-icon"><i class="fa-solid fa-brain"></i></div>
+                <div class="brand-text">
+                    <span class="brand-name">SkillAI</span>
+                    <small class="brand-tagline">AI CAREER ENGINE</small>
+                </div>
+            </div>
+            
+            <div class="progress-track">
+                <div class="step-item active" id="indicator1">
+                    <div class="step-number">01</div>
+                    <div class="step-info">
+                        <strong>Trajectory</strong>
+                        <p>Target job role</p>
+                    </div>
+                </div>
+                <div class="step-item" id="indicator2">
+                    <div class="step-number">02</div>
+                    <div class="step-info">
+                        <strong>Inventory</strong>
+                        <p>Technical assets</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <p>Analyzing skills using NLP & KNN algorithms for precision matching.</p>
+            </div>
+        </div>
+
+        <div class="onboarding-main">
+            <form method="POST" id="onboardingForm">
+                {% csrf_token %}
+                <div class="slider-viewport">
+                    
+                    <div class="slide active" id="slide1">
+                        <div class="slide-header">
+                            <h2>Select Your Path</h2>
+                            <p>Identify your target professional trajectory to begin the AI analysis.</p>
+                        </div>
+
+                        <div class="role-grid">
+                            {% for role in job_roles %}
+                            <div class="role-card" onclick="selectRole(this, '{{ role.id }}')">
+                                <div class="role-icon-wrapper">
+                                    <i class="fas fa-briefcase"></i>
+                                </div>
+                                <div class="role-content">
+                                    <strong>{{ role.title }}</strong>
+                                    <span>{{ role.industry }}</span>
+                                </div>
+                                <div class="check-mark"><i class="fas fa-check"></i></div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" name="job_role" id="selectedRoleInput" required>
+
+                        <div class="action-footer">
+                            <button type="button" class="btn-next" onclick="nextStep()">
+                                Continue to Skills <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="slide" id="slide2">
+                        <div class="slide-header">
+                            <h2>Skill Inventory</h2>
+                            <p>Rate your current proficiency levels across technical assets.</p>
+                        </div>
+
+                        <div class="skill-matrix-container">
+                            <div class="skill-matrix-grid">
+                                {% for skill in available_skills %}
+                                <div class="skill-row">
+                                    <div class="skill-checkbox">
+                                        <input type="checkbox" name="skills" value="{{ skill.id }}" id="s_{{ skill.id }}">
+                                        <label for="s_{{ skill.id }}">{{ skill.name }}</label>
+                                    </div>
+                                    <div class="skill-level">
+                                        <select name="level_{{ skill.id }}" class="level-dropdown">
+                                            <option value="1">L1 (Basic)</option>
+                                            <option value="2">L2</option>
+                                            <option value="3">L3</option>
+                                            <option value="4">L4</option>
+                                            <option value="5">L5 (Expert)</option>
+                                        </select>
+                                        
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="action-footer">
+                            <button type="button" class="btn-back" onclick="prevStep()">Back</button>
+                            <button type="submit" class="btn-submit">Initialize AI Analysis</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+:root {
+    --primary-purple: #a78bfa;
+    --primary-pink: #f472b6;
+    --primary-strong: #7c3aed;
+    --primary-indigo: #6366f1;
+    --bright-pink: #ec4899;
+
+    --dark-indigo: #1e1b4b;
+    --ai-dark: #312e81;
+
+    --text-muted: #64748b;
+    --bg-soft: #fdf2f8;
+    --stroke-light: #f1f5f9;
+
+    --primary-gradient: linear-gradient(135deg, #a78bfa, #f472b6);
+    --ai-gradient: linear-gradient(135deg, #1e1b4b, #312e81);
+}
+
+.onboarding-fullscreen {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at top right, #312e81, #1e1b4b);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    padding: 20px;
+}
+
+.glow-sphere {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(167,139,250,0.25) 0%, transparent 70%);
+    top: -200px;
+    left: -100px;
+    z-index: 0;
+}
+
+.onboarding-container {
+    width: 100%;
+    max-width: 1100px;
+    height: 680px;
+    background: var(--bg-soft);
+    border-radius: 32px;
+    display: flex;
+    overflow: hidden;
+    box-shadow: 0 50px 100px -20px rgba(0,0,0,0.5);
+    z-index: 10;
+}
+
+/* SIDEBAR */
+.onboarding-sidebar {
+    width: 320px;
+    background: white;
+    border-right: 1px solid #e2e8f0;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-box { display: flex; align-items: center; margin-bottom: 60px; }
+.logo-icon { 
+    width: 40px; height: 40px; background: linear-gradient(135deg, #a78bfa, #f472b6);
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    color: white; margin-right: 12px; font-size: 18px;
+}
+.brand-name { font-weight: 800; font-size: 20px; color: var(--text-dark); }
+.brand-tagline { font-size: 10px; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; }
+
+.progress-track { flex-grow: 1; }
+.step-item { display: flex; align-items: center; margin-bottom: 40px; opacity: 0.4; transition: 0.3s; }
+.step-item.active { opacity: 1; }
+.step-number { font-weight: 800; font-size: 24px; color: var(--primary-strong); margin-right: 15px; }
+.step-info strong { display: block; color: var(--text-dark); font-size: 14px; }
+.step-info p { font-size: 12px; color: var(--text-light); }
+
+/* MAIN CONTENT */
+.onboarding-main { flex: 1; padding: 60px; position: relative; background: #ffffff; }
+.slide-header { margin-bottom: 40px; }
+.slide-header h2 { font-size: 32px; font-weight: 800; color: var(--text-dark); margin-bottom: 10px; }
+.slide-header p { color: var(--text-light); }
+
+.slider-viewport { position: relative; height: 100%; }
+.slide { position: absolute; inset: 0; opacity: 0; transform: translateY(20px); transition: 0.5s; pointer-events: none; }
+.slide.active { opacity: 1; transform: translateY(0); pointer-events: all; }
+
+/* ROLE CARDS */
+.role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.role-card {
+    background: #f8fafc; border: 2px solid #f1f5f9; padding: 20px; border-radius: 20px;
+    display: flex; align-items: center; cursor: pointer; transition: 0.3s; position: relative;
+}
+.role-card:hover { border-color: var(--primary-purple); background: white; transform: translateY(-3px); }
+.role-card.selected { border-color: var(--primary-purple); background: #fdf2f8; }
+.role-icon-wrapper { width: 45px; height: 45px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--indigo-primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-right: 15px; }
+.role-content strong { display: block; font-size: 16px; color: var(--text-dark); }
+.role-content span { font-size: 13px; color: var(--text-light); }
+.check-mark { position: absolute; right: 20px; color: var(--indigo-primary); opacity: 0; transform: scale(0.5); transition: 0.3s; }
+.role-card.selected .check-mark { opacity: 1; transform: scale(1); }
+
+/* SKILL MATRIX */
+.skill-matrix-container { max-height: 380px; overflow-y: auto; padding-right: 10px; }
+.skill-row { 
+    display: flex; align-items: center; justify-content: space-between; 
+    padding: 14px 20px; background: #f8fafc; border-radius: 14px; margin-bottom: 10px;
+    transition: 0.3s; border: 1px solid transparent;
+}
+.skill-row:hover { background: white; border-color: #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+.skill-checkbox { display: flex; align-items: center; gap: 12px; }
+.skill-checkbox label { font-weight: 600; color: var(--text-dark); font-size: 14px; cursor: pointer; }
+.level-dropdown { border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 600; color: var(--indigo-primary); outline: none; }
+
+/* FIXED BUTTONS - Uses margin-top: auto to stay at bottom */
+.action-footer { 
+    margin-top: auto; 
+    display: flex; 
+    gap: 15px;
+    padding-top: 30px;
+    border-top: 1px solid #f1f5f9;
+}
+
+/* Button Styling - Slightly more compact height */
+.btn-next, .btn-submit { 
+    background: linear-gradient(135deg, #a78bfa, #f472b6);
+    color: white; 
+    border: none;
+    padding: 16px 32px; 
+    border-radius: 14px; 
+    font-weight: 700; 
+    font-size: 16px;
+    cursor: pointer; 
+    transition: 0.3s ease; 
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-next:hover, .btn-submit:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 10px 20px rgba(167,139,250,0.3);
+}
+
+.btn-back { 
+    background: #f1f5f9;
+    color: var(--dark-indigo); 
+    border: none; 
+    padding: 16px 24px; 
+    border-radius: 14px; 
+    font-weight: 600; 
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-back:hover {
+    background: #e2e8f0;
+}
+/* Scrollbar Style */
+.skill-matrix-container::-webkit-scrollbar { width: 5px; }
+.skill-matrix-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+</style>
+
+<script>
+    function selectRole(element, id) {
+        document.querySelectorAll('.role-card').forEach(r => r.classList.remove('selected'));
+        element.classList.add('selected');
+        document.getElementById('selectedRoleInput').value = id;
+    }
+
+    function nextStep() {
+        const role = document.getElementById('selectedRoleInput').value;
+        if (!role) { alert("Please select a target role to continue."); return; }
+        
+        document.getElementById('slide1').classList.remove('active');
+        document.getElementById('slide2').classList.add('active');
+        document.getElementById('indicator1').classList.remove('active');
+        document.getElementById('indicator2').classList.add('active');
+    }
+
+    function prevStep() {
+        document.getElementById('slide2').classList.remove('active');
+        document.getElementById('slide1').classList.add('active');
+        document.getElementById('indicator2').classList.remove('active');
+        document.getElementById('indicator1').classList.add('active');
+    }
+</script>
+{% endblock %}

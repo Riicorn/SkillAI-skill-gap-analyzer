@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+
+.page-title{
+font-weight:700;
+color:var(--text-main);
+}
+
+.card{
+border:none;
+border-radius:18px;
+box-shadow:0 10px 25px rgba(0,0,0,0.06);
+transition:.25s;
+}
+
+.card:hover{
+transform:translateY(-4px);
+}
+
+.stat-icon{
+width:46px;
+height:46px;
+border-radius:12px;
+display:flex;
+align-items:center;
+justify-content:center;
+color:white;
+font-size:18px;
+}
+
+.ai-box{
+background:linear-gradient(135deg,#312e81,#6366f1);
+color:white;
+border-radius:20px;
+padding:24px;
+}
+
+.skill-gap-card{
+background:white;
+border-radius:16px;
+padding:18px;
+box-shadow:0 8px 22px rgba(0,0,0,0.05);
+transition:.25s;
+}
+
+.skill-gap-card:hover{
+transform:translateY(-3px);
+}
+
+.progress{
+height:10px;
+border-radius:8px;
+}
+
+.progress-bar{
+background:linear-gradient(135deg,#a78bfa,#f472b6);
+}
+
+</style>
+
+
+<div class="container-fluid">
+
+<!-- PAGE HEADER -->
+
+<div class="mb-4">
+
+<h2 class="page-title">
+Skill Gap Analysis
+</h2>
+
+<p class="text-muted mb-0">
+Compare your current skills with the requirements for
+<strong>{{ job_role.name }}</strong>
+</p>
+
+</div>
+
+
+<!-- SUMMARY CARDS -->
+
+<div class="row g-3 mb-4">
+
+
+<div class="col-md-4">
+
+<div class="card p-3 d-flex align-items-center flex-row gap-3">
+
+<div class="stat-icon" style="background:var(--primary-gradient)">
+<i class="fa fa-bullseye"></i>
+</div>
+
+<div>
+<small class="text-muted d-block">Target Role</small>
+<strong>{{ job_role.name }}</strong>
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-4">
+
+<div class="card p-3 d-flex align-items-center flex-row gap-3">
+
+<div class="stat-icon bg-success">
+<i class="fa fa-chart-line"></i>
+</div>
+
+<div>
+<small class="text-muted d-block">Match Score</small>
+<strong>{{ total_gap_score }}%</strong>
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-4">
+
+<div class="card p-3 d-flex align-items-center flex-row gap-3">
+
+<div class="stat-icon bg-warning">
+<i class="fa fa-exclamation-triangle"></i>
+</div>
+
+<div>
+<small class="text-muted d-block">Skills To Improve</small>
+<strong>{{ gaps|length }}</strong>
+</div>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<!-- CHART + AI PANEL -->
+
+<div class="row g-4 mb-4">
+
+
+<div class="col-lg-7">
+
+<div class="card p-4">
+
+<h5 class="fw-bold mb-3">
+Skill Comparison
+</h5>
+
+<p class="small text-muted">
+Current vs Required skill levels
+</p>
+
+<div style="height:350px">
+
+<canvas id="radarCompareChart"></canvas>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-lg-5">
+
+<div class="ai-box">
+
+<h5 class="fw-bold mb-3">
+🤖 AI Skill Advisor
+</h5>
+
+<p class="small text-white-50 mb-3">
+Suggestions for
+<strong>{{ job_role.name }}</strong>
+</p>
+
+{% if gaps %}
+
+<div class="small fw-bold mb-2">
+Skills To Improve
+</div>
+
+<ul class="small mb-3">
+
+{% for skill,score in gaps.items|slice:":3" %}
+
+<li>
+{{ skill }} ({{ score }}%)
+</li>
+
+{% endfor %}
+
+</ul>
+
+<p class="small text-white-50">
+Focus on these skills to improve your job match score.
+</p>
+
+{% else %}
+
+<p class="small">
+Great job! Your skills match this role 🎉
+</p>
+
+{% endif %}
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<!-- SKILL GAP LIST -->
+
+<div class="card p-4">
+
+<h5 class="fw-bold mb-2">
+Detailed Skill Gap Breakdown
+</h5>
+
+<p class="small text-muted mb-4">
+Improve the lowest skills first
+</p>
+
+
+{% for skill,score in gaps.items %}
+
+<div class="skill-gap-card mb-3">
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+
+<div class="d-flex align-items-center gap-2">
+
+<strong>{{ skill }}</strong>
+
+{% if score < 50 %}
+<span class="badge bg-danger-subtle text-danger">
+Critical
+</span>
+{% else %}
+<span class="badge bg-warning-subtle text-warning">
+Needs Work
+</span>
+{% endif %}
+
+</div>
+
+
+<a href="{% url 'learning_path' %}" class="btn btn-sm btn-primary rounded-pill px-3">
+Start Learning
+</a>
+
+</div>
+
+
+<div class="d-flex justify-content-between small text-muted mb-1">
+
+<span>Current {{ score }}%</span>
+
+<span>Target 90%</span>
+
+</div>
+
+
+<div class="progress">
+
+<div class="progress-bar" style="width: {{ score }}%"></div>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+const ctx=document.getElementById("radarCompareChart");
+
+new Chart(ctx,{
+
+type:"radar",
+
+data:{
+
+labels:[
+{% for skill in gaps.keys %}
+"{{ skill }}",
+{% endfor %}
+],
+
+datasets:[
+
+{
+label:"Current Level",
+
+data:[
+{% for score in gaps.values %}
+{{ score }},
+{% endfor %}
+],
+
+backgroundColor:"rgba(167,139,250,0.25)",
+borderColor:"#a78bfa",
+pointBackgroundColor:"#a78bfa"
+
+},
+
+{
+label:"Required Level",
+
+data:[
+{% for skill in gaps.keys %}
+90,
+{% endfor %}
+],
+
+backgroundColor:"rgba(34,197,94,0.15)",
+borderColor:"#22c55e",
+pointBackgroundColor:"#22c55e"
+
+}
+
+]
+
+},
+
+options:{
+
+maintainAspectRatio:false,
+
+scales:{
+r:{
+suggestedMin:0,
+suggestedMax:100,
+grid:{color:"rgba(0,0,0,0.05)"},
+angleLines:{color:"rgba(0,0,0,0.05)"}
+}
+},
+
+plugins:{
+legend:{
+position:"bottom"
+}
+}
+
+}
+
+});
+
+</script>
+
+{% endblock %}
