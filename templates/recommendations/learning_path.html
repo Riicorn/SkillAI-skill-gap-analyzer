@@ -1,160 +1,359 @@
 {% extends "base.html" %}
-
 {% block content %}
+
 <style>
-    :root {
-        --primary-grad: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
-        --dark-bg: #1e1b4b;
-        --glass: rgba(255, 255, 255, 0.9);
-    }
 
-    body { background-color: #fdf2f8; font-family: 'Inter', sans-serif; }
+:root{
+--primary-grad:linear-gradient(135deg,#a78bfa,#f472b6);
+--dark-indigo:#1e1b4b;
+--muted-text:#64748b;
+}
 
-    /* Roadmap Container */
-    .roadmap-container {
-        position: relative;
-        padding-left: 3rem;
-        margin-top: 2rem;
-    }
+body{
+background:#fdf2f8;
+font-family:'Plus Jakarta Sans',sans-serif;
+color:var(--dark-indigo);
+}
 
-    /* Vertical Line */
-    .roadmap-container::before {
-        content: '';
-        position: absolute;
-        left: 0.75rem;
-        top: 0;
-        bottom: 0;
-        width: 4px;
-        background: var(--primary-grad);
-        border-radius: 10px;
-        opacity: 0.3;
-    }
+/* Timeline */
 
-    /* Roadmap Step Node */
-    .roadmap-step {
-        position: relative;
-        margin-bottom: 3rem;
-        animation: slideIn 0.5s ease forwards;
-        opacity: 0;
-    }
+.roadmap-container{
+position:relative;
+padding-left:4rem;
+max-width:900px;
+margin:auto;
+}
 
-    @keyframes slideIn {
-        from { transform: translateX(-20px); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
+.roadmap-container::before{
+content:'';
+position:absolute;
+left:1.2rem;
+top:0;
+bottom:0;
+width:5px;
+background:#e2e8f0;
+border-radius:10px;
+}
 
-    .roadmap-node {
-        position: absolute;
-        left: -3rem;
-        width: 2rem;
-        height: 2rem;
-        background: var(--primary-grad);
-        border: 4px solid #fff;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        box-shadow: 0 0 15px rgba(167, 139, 250, 0.4);
-        z-index: 1;
-    }
+.roadmap-step{
+position:relative;
+margin-bottom:3rem;
+}
 
-    /* Professional Glass Card */
-    .learning-card {
-        background: var(--glass);
-        backdrop-filter: blur(10px);
-        border: 1px solid #e2e8f0;
-        border-radius: 1.5rem;
-        padding: 1.5rem;
-        box-shadow: 0 8px 32px rgba(167, 139, 250, 0.05);
-        transition: transform 0.3s ease;
-    }
+/* Step node */
 
-    .learning-card:hover {
-        transform: scale(1.02);
-        border-color: #f472b6;
-    }
+.roadmap-node{
+position:absolute;
+left:-4rem;
+width:3rem;
+height:3rem;
+background:var(--primary-grad);
+border:4px solid white;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+color:white;
+font-weight:700;
+box-shadow:0 10px 20px rgba(0,0,0,0.08);
+}
 
-    .resource-badge {
-        font-size: 0.75rem;
-        padding: 0.4rem 0.8rem;
-        border-radius: 2rem;
-        font-weight: 600;
-        margin-right: 0.5rem;
-        margin-bottom: 0.5rem;
-        display: inline-block;
-    }
+/* Card */
 
-    .bg-youtube { background: #fee2e2; color: #dc2626; }
-    .bg-doc { background: #e0f2fe; color: #0284c7; }
-    .bg-project { background: #f0fdf4; color: #16a34a; }
+.learning-card{
+background:white;
+border-radius:20px;
+padding:25px;
+border:1px solid #e2e8f0;
+box-shadow:0 15px 35px rgba(0,0,0,0.05);
+}
 
-    .gradient-heading {
-        background: var(--primary-grad);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 800;
-    }
+/* Resource button */
+
+.resource-pill{
+background:#f1f5f9;
+padding:.5rem 1rem;
+border-radius:10px;
+font-size:.85rem;
+font-weight:600;
+text-decoration:none;
+color:#1e293b;
+display:flex;
+align-items:center;
+gap:6px;
+}
+
+.resource-pill:hover{
+background:#1e1b4b;
+color:white;
+}
+
+/* Trophy animation */
+
+/* Trophy animation */
+
+.trophy{
+font-size:100px;
+animation:bounce 1s ease infinite alternate;
+position:relative;
+z-index:2;
+}
+
+@keyframes bounce{
+0%{transform:translateY(0)}
+100%{transform:translateY(-10px)}
+}
+
+/* Fireworks container */
+
+.fireworks-celebration{
+position:relative;
+display:inline-block;
+}
+
+.fireworks-container{
+position:absolute;
+top:-20px;
+left:0;
+width:100%;
+height:150px;
+pointer-events:none;
+}
+
+/* Spark particles */
+
+.spark{
+position:absolute;
+width:8px;
+height:8px;
+border-radius:50%;
+animation:explode 1.5s ease-out forwards;
+}
+
+@keyframes explode{
+
+0%{
+transform:translate(0,0) scale(1);
+opacity:1;
+}
+
+100%{
+transform:translate(var(--x),var(--y)) scale(0);
+opacity:0;
+}
+
+}
+
 </style>
 
+
 <div class="container py-5">
-    <div class="text-center mb-5">
-        <h1 class="gradient-heading display-5">Your SkillAI Roadmap</h1>
-        <p class="text-muted fs-5">An AI-curated journey to bridge your gap to becoming a Senior Developer.</p>
-    </div>
 
-    {% if weak_skills %}
-        <div class="roadmap-container mx-auto" style="max-width: 800px;">
-            {% for skill in weak_skills %}
-            <div class="roadmap-step" style="animation-delay: {{ forloop.counter0|add:1 }}s;">
-                <div class="roadmap-node">{{ forloop.counter }}</div>
-                
-                <div class="learning-card">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div>
-                            <h4 class="fw-bold mb-1">{{ skill.skill.name }}</h4>
-                            <span class="text-muted small">Current Level: {{ skill.level }} / 5</span>
-                        </div>
-                        <span class="badge rounded-pill" style="background: var(--primary-grad);">Recommended</span>
-                    </div>
+<!-- HEADER -->
 
-                    <p class="small text-secondary mb-4">
-                        To master this skill, we've identified the best resources from our database.
-                    </p>
+<div class="text-center mb-5">
 
-                    <div class="resource-links">
-                        <h6 class="fw-bold small text-uppercase mb-3">Curated Resources:</h6>
-                        
-                        <a href="#" class="resource-badge bg-youtube text-decoration-none">
-                            <i class="bi bi-play-circle-fill me-1"></i> Video Tutorial
-                        </a>
-                        <a href="#" class="resource-badge bg-doc text-decoration-none">
-                            <i class="bi bi-file-earmark-text-fill me-1"></i> Documentation
-                        </a>
-                        <a href="#" class="resource-badge bg-project text-decoration-none">
-                            <i class="bi bi-code-slash me-1"></i> Practice Project
-                        </a>
-                    </div>
+<h1 style="font-weight:800;background:var(--primary-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+Bridge the Gap to {{ target_role.name }}
+</h1>
 
-                    <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
-                        <div class="small fw-bold text-muted">Estimated: 2 Weeks</div>
-                        <button class="btn btn-sm btn-outline-primary px-3 rounded-pill">Mark as Complete</button>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="text-center py-5">
-            <div class="glass-card d-inline-block p-5">
-                <h1 class="display-1">🎉</h1>
-                <h2 class="fw-bold mt-3">All Clear!</h2>
-                <p class="text-muted">You have no significant skill gaps. Keep pushing boundaries!</p>
-                <a href="{% url 'skills' %}" class="btn btn-primary-gradient mt-3">Update My Skills</a>
-            </div>
-        </div>
-    {% endif %}
+<p class="text-muted">
+Your personalized learning roadmap
+</p>
+
 </div>
 
+
+<!-- GLOBAL PROGRESS -->
+
+<div class="progress mb-4"
+style="height:10px;background:#e2e8f0;border-radius:10px">
+
+{% widthratio completed_steps total_steps 100 as progress %}
+
+<div class="progress-bar"
+style="width:{{ progress }}%;background:var(--primary-grad)">
+</div>
+
+</div>
+
+<p class="text-center small text-muted mb-5">
+{{ completed_steps }} / {{ total_steps }} resources completed
+</p>
+
+
+{% if roadmap_items %}
+
+<div class="roadmap-container">
+
+{% for item in roadmap_items %}
+
+<div class="roadmap-step">
+
+<div class="roadmap-node">
+{{ forloop.counter }}
+</div>
+
+<div class="learning-card">
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+
+<h4 class="fw-bold">
+{{ item.skill.name }}
+</h4>
+
+<span class="badge bg-light text-dark">
+Gap {{ item.gap_severity }}
+</span>
+
+</div>
+
+
+<!-- SKILL PROGRESS -->
+
+<div class="progress mb-2"
+style="height:8px;background:#e2e8f0">
+
+{% widthratio item.current_level item.target_level 100 as width %}
+
+<div class="progress-bar"
+style="width:{{ width }}%;background:var(--primary-grad)">
+</div>
+
+</div>
+
+<p class="small text-muted mb-4">
+Level {{ item.current_level }} → {{ item.target_level }}
+</p>
+
+
+<h6 class="text-uppercase small text-muted mb-3">
+Recommended Learning
+</h6>
+
+<div class="d-flex flex-wrap gap-3">
+
+{% for resource in item.resources %}
+
+<div class="d-flex gap-2 align-items-center">
+
+<a href="{{ resource.link }}"
+target="_blank"
+class="resource-pill">
+
+{{ resource.title }}
+
+</a>
+
+{% if resource.id in completed_resource_ids %}
+
+<span class="badge bg-success">
+✓ Completed
+</span>
+
+{% else %}
+
+<form method="post"
+action="{% url 'complete_resource' resource.id %}">
+
+{% csrf_token %}
+
+<button class="btn btn-sm btn-success">
+Complete
+</button>
+
+</form>
+
+{% endif %}
+
+</div>
+
+{% empty %}
+
+<span class="text-muted small">
+All resources completed for this skill 🎉
+</span>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+{% else %}
+
+<!-- COMPLETION SCREEN -->
+
+<div class="text-center mt-5">
+
+<!-- COMPLETION SCREEN -->
+<div class="text-center mt-5 fireworks-celebration">
+
+    <div class="fireworks-container"></div>
+
+    <div class="trophy">🏆</div>
+
+    <h2 class="fw-bold mt-3">Learning Path Completed!</h2>
+
+    <p class="text-muted">
+        You finished all learning resources for this role.
+    </p>
+
+</div>
+
+{% endif %}
+
+</div>
+
+
+
+
+<script>
+
+function createFireworks(){
+
+const container = document.querySelector(".fireworks-container")
+if(!container) return
+
+container.innerHTML=""
+
+for(let i=0;i<200;i++){
+
+const spark=document.createElement("div")
+spark.className="spark"
+
+const colors=["#f472b6","#a78bfa","#facc15","#6366f1","#fb7185"]
+
+spark.style.background=colors[Math.floor(Math.random()*colors.length)]
+
+const angle=Math.random()*2*Math.PI
+const radius=80+Math.random()*120
+
+const x=Math.cos(angle)*radius+"px"
+const y=Math.sin(angle)*radius+"px"
+
+spark.style.setProperty("--x",x)
+spark.style.setProperty("--y",y)
+
+spark.style.left="50%"
+spark.style.top="20%"
+
+spark.style.animationDelay=(Math.random()*0.4)+"s"
+
+container.appendChild(spark)
+
+}
+
+}
+
+createFireworks()
+setInterval(createFireworks,1500)
+
+</script>
 {% endblock %}

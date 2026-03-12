@@ -5,4 +5,11 @@ from . import views
 urlpatterns = [
     path('learning-path/', generate_learning_path, name='learning_path'),
     path("courses/", views.courses_view, name="courses"),
+    path("progress/", views.progress_view, name="progress"),
+
+    path(
+        "complete-resource/<int:resource_id>/",
+        views.complete_resource,
+        name="complete_resource"
+    ),
 ]

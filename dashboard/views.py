@@ -84,6 +84,6 @@ def onboarding_view(request):
 
 
 
-@login_required
-def progress_view(request):
-    return render(request, "dashboard/progress.html")
+# @login_required
+# def progress_view(request):
+#     return render(request, "dashboard/progress.html")

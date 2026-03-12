@@ -117,3 +117,16 @@ class LearningResource(models.Model):
 
     def __str__(self):
         return f"{self.skill.name} - {self.title}"
+
+from django.contrib.auth.models import User
+
+class LearningProgress(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    skill = models.ForeignKey('Skill', on_delete=models.CASCADE)
+    resource = models.ForeignKey('LearningResource', on_delete=models.CASCADE)
+
+    completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.skill.name}"
