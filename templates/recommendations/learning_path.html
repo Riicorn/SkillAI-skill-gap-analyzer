@@ -143,6 +143,115 @@ opacity:0;
 }
 
 }
+/* HERO SECTION */
+
+.hero-section{
+margin-top:20px;
+margin-bottom:40px;
+}
+
+.hero-title{
+font-size:48px;
+font-weight:800;
+background:linear-gradient(135deg,#a78bfa,#f472b6);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+margin-bottom:10px;
+}
+
+.hero-subtitle{
+color:#64748b;
+font-size:16px;
+}
+
+/* PROGRESS BAR */
+
+.progress-wrapper{
+max-width:700px;
+margin:auto;
+margin-bottom:60px;
+}
+
+.progress-track{
+height:12px;
+background:#e2e8f0;
+border-radius:20px;
+overflow:hidden;
+}
+
+.progress-fill{
+height:100%;
+background:linear-gradient(135deg,#a78bfa,#f472b6);
+border-radius:20px;
+transition:width .6s ease;
+}
+
+.progress-text{
+text-align:center;
+margin-top:10px;
+color:#64748b;
+font-size:14px;
+}
+.role-highlight{
+background:linear-gradient(135deg,#a78bfa,#f472b6);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+.resource-completed{
+background:linear-gradient(135deg,#22c55e,#4ade80);
+color:white;
+padding:6px 12px;
+border-radius:20px;
+font-size:13px;
+font-weight:600;
+display:inline-flex;
+align-items:center;
+gap:6px;
+box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+
+.resource-completed i{
+font-size:14px;
+}
+
+.complete-btn{
+background:linear-gradient(135deg,#a78bfa,#f472b6);
+border:none;
+color:white;
+font-size:13px;
+padding:6px 14px;
+border-radius:10px;
+font-weight:600;
+display:inline-flex;
+align-items:center;
+gap:6px;
+transition:.25s;
+}
+
+.complete-btn:hover{
+transform:translateY(-2px);
+box-shadow:0 8px 18px rgba(0,0,0,0.15);
+}
+
+.badge-btn{
+display:inline-flex;
+align-items:center;
+gap:8px;
+background:linear-gradient(135deg,#6366f1,#a78bfa);
+color:white;
+padding:14px 28px;
+border-radius:14px;
+font-weight:700;
+font-size:16px;
+text-decoration:none;
+transition:.25s;
+box-shadow:0 12px 30px rgba(0,0,0,0.15);
+}
+
+.badge-btn:hover{
+transform:translateY(-3px);
+box-shadow:0 18px 40px rgba(0,0,0,0.2);
+}
 
 </style>
 
@@ -151,35 +260,39 @@ opacity:0;
 
 <!-- HEADER -->
 
-<div class="text-center mb-5">
+<!-- HERO HEADER -->
 
-<h1 style="font-weight:800;background:var(--primary-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
-Bridge the Gap to {{ target_role.name }}
+<div class="text-center mb-5 hero-section">
+
+
+
+<h1 class="hero-title">
+Bridge the Gap to 
+<span class="role-highlight">
+{{ target_role.title|default:"Your Career Goal" }}
+</span>
 </h1>
-
-<p class="text-muted">
-Your personalized learning roadmap
+<p class="hero-subtitle">
+  Your personalized learning roadmap
 </p>
-
-</div>
 
 
 <!-- GLOBAL PROGRESS -->
 
-<div class="progress mb-4"
-style="height:10px;background:#e2e8f0;border-radius:10px">
+<div class="progress-wrapper">
+
+<div class="progress-track">
 
 {% widthratio completed_steps total_steps 100 as progress %}
 
-<div class="progress-bar"
-style="width:{{ progress }}%;background:var(--primary-grad)">
-</div>
+<div class="progress-fill" style="width:{{ progress }}%"></div>
 
 </div>
 
-<p class="text-center small text-muted mb-5">
-{{ completed_steps }} / {{ total_steps }} resources completed
+<p class="progress-text">
+<strong>{{ completed_steps }}</strong> / {{ total_steps }} resources completed
 </p>
+</div>
 
 
 {% if roadmap_items %}
@@ -247,8 +360,9 @@ class="resource-pill">
 
 {% if resource.id in completed_resource_ids %}
 
-<span class="badge bg-success">
-✓ Completed
+<span class="resource-completed">
+<i class="fa-solid fa-circle-check"></i>
+Completed
 </span>
 
 {% else %}
@@ -258,7 +372,8 @@ action="{% url 'complete_resource' resource.id %}">
 
 {% csrf_token %}
 
-<button class="btn btn-sm btn-success">
+<button type="submit" class="complete-btn">
+<i class="fa-solid fa-check"></i>
 Complete
 </button>
 
@@ -304,6 +419,11 @@ All resources completed for this skill 🎉
     <p class="text-muted">
         You finished all learning resources for this role.
     </p>
+
+   <a href="{% url 'progress' %}" class="badge-btn mt-3">
+        <i class="fa-solid fa-award"></i>
+        Claim Your Badge
+        </a>
 
 </div>
 

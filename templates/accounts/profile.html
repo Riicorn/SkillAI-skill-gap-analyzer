@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+<div class="row">
+
+<!-- ================= PROFILE CARD ================= -->
+
+<div class="col-md-4">
+
+<div class="card shadow-sm p-4 text-center">
+
+{% if profile.profile_picture %}
+<img src="{{ profile.profile_picture.url }}" class="rounded-circle mb-3" width="140" height="140">
+{% else %}
+<img src="{% static 'default.png' %}" class="rounded-circle mb-3" width="140">
+{% endif %}
+
+<h4>{{ user.username }}</h4>
+<p class="text-muted">{{ user.email }}</p>
+
+<p>{{ profile.bio|default:"No bio added yet." }}</p>
+
+<a href="{% url 'edit_profile' %}" class="btn btn-outline-primary btn-sm">
+Edit Profile
+</a>
+
+</div>
+
+<!-- ================= PROFILE STATS ================= -->
+
+<div class="card shadow-sm p-4 mt-4">
+
+<h5>Profile Stats</h5>
+
+<p><strong>Skill Score:</strong> {{ profile.skill_score }}</p>
+
+<p><strong>Profile Completion</strong></p>
+
+<div class="progress mb-3">
+<div class="progress-bar bg-success"
+     role="progressbar"
+     style="width: {{ profile.profile_completion }}%">
+{{ profile.profile_completion }}%
+</div>
+</div>
+
+<p><strong>Achievements:</strong> {{ achievements.count }}</p>
+
+{% if profile.is_verified %}
+<span class="badge bg-success">Verified</span>
+{% else %}
+<span class="badge bg-secondary">Not Verified</span>
+{% endif %}
+
+</div>
+
+</div>
+
+
+<!-- ================= MAIN PROFILE INFO ================= -->
+
+<div class="col-md-8">
+
+<div class="card shadow-sm p-4">
+
+<h4>Professional Information</h4>
+<hr>
+
+<p><strong>Career Goal:</strong> {{ profile.career_goal|default:"Not set" }}</p>
+
+<p><strong>Experience Level:</strong> {{ profile.experience_level }}</p>
+
+<p><strong>Education:</strong> {{ profile.current_education|default:"Not set" }}</p>
+
+<p><strong>University:</strong> {{ profile.university|default:"Not set" }}</p>
+
+</div>
+
+
+<!-- ================= PROFESSIONAL LINKS ================= -->
+
+<div class="card shadow-sm p-4 mt-4">
+
+<h4>Professional Links</h4>
+
+<ul class="list-group list-group-flush">
+
+<li class="list-group-item">
+<strong>LinkedIn:</strong>
+<a href="{{ profile.linkedin }}" target="_blank">
+{{ profile.linkedin|default:"Not added" }}
+</a>
+</li>
+
+<li class="list-group-item">
+<strong>GitHub:</strong>
+<a href="{{ profile.github }}" target="_blank">
+{{ profile.github|default:"Not added" }}
+</a>
+</li>
+
+<li class="list-group-item">
+<strong>Portfolio:</strong>
+<a href="{{ profile.portfolio }}" target="_blank">
+{{ profile.portfolio|default:"Not added" }}
+</a>
+</li>
+
+</ul>
+
+</div>
+
+
+<!-- ================= RESUME SECTION ================= -->
+
+<div class="card shadow-sm p-4 mt-4">
+
+<h4>Resume</h4>
+
+{% if profile.resume %}
+<a href="{{ profile.resume.url }}" target="_blank" class="btn btn-success btn-sm mb-3">
+View Resume
+</a>
+{% else %}
+<p>No resume uploaded</p>
+{% endif %}
+
+<form method="POST" enctype="multipart/form-data">
+{% csrf_token %}
+
+<div class="mb-2">
+<input type="file" name="resume" class="form-control">
+</div>
+
+<button class="btn btn-primary btn-sm">
+Upload Resume
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ================= ACHIEVEMENTS ================= -->
+
+<div class="card shadow-sm p-4 mt-5">
+
+<h4>Achievements</h4>
+
+<div class="row">
+
+{% for achievement in achievements %}
+
+<div class="col-md-3">
+
+<div class="card text-center p-3 mb-3">
+
+<h6>{{ achievement.title }}</h6>
+
+<p class="small">{{ achievement.description }}</p>
+
+<small class="text-muted">
+{{ achievement.earned_at|date:"M d, Y" }}
+</small>
+
+</div>
+
+</div>
+
+{% empty %}
+
+<p class="text-muted">No achievements yet.</p>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+
+<!-- ================= CAREER PROGRESS ================= -->
+
+<div class="card shadow-sm p-4 mt-4">
+
+<h4>Career Progress</h4>
+
+<ul class="list-group">
+
+{% for p in progress %}
+
+<li class="list-group-item d-flex justify-content-between align-items-center">
+
+{{ p.job_role }}
+
+<span class="badge bg-primary rounded-pill">
+{{ p.completion_percentage }}%
+</span>
+
+</li>
+
+{% empty %}
+
+<li class="list-group-item text-muted">
+No career progress data.
+</li>
+
+{% endfor %}
+
+</ul>
+
+</div>
+
+
+</div>
+
+{% endblock %}
