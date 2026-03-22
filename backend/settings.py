@@ -91,9 +91,11 @@ MEDIA_ROOT = BASE_DIR / 'media'
 LOGIN_URL = 'account_login'
 LOGIN_REDIRECT_URL = 'onboarding'
 LOGOUT_REDIRECT_URL = 'landing'
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
 ACCOUNT_LOGIN_ON_SIGNUP = False
 ACCOUNT_ADAPTER = "accounts.adapter.MyAccountAdapter"
 CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8000"]
+
 # Allauth Settings
 # Email Settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -107,7 +109,12 @@ EMAIL_HOST_PASSWORD = 'qodi ubty gjkf ctok'
 
 DEFAULT_FROM_EMAIL = "SkillAI <team.skillai@gmail.com>"
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "[SkillAI] "
 ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+ACCOUNT_EMAIL_VERIFICATION = "optional"
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
 SOCIALACCOUNT_PROVIDERS = {

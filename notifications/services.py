@@ -57,121 +57,115 @@ def create_notification(user, title, message, type):
 
     dashboard_url = "http://127.0.0.1:8000/notifications/all/"
     html_content = f"""
-        
-        <div style="font-size:14px; margin-bottom:12px;">
-    Hi {user.username},
-</div>
-<div style="margin:0; padding:0; background:#fdf2f8; font-family:Arial, sans-serif;">
-
-        <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 0;">
-        <tr>
-        <td align="center">
+<div style="margin:0;padding:0;background:#fdf2f8;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 0;">
+    <tr>
+      <td align="center">
 
         <table width="420" cellpadding="0" cellspacing="0"
-            style="background:#ffffff; border-radius:14px; border:1px solid #e2e8f0;
-            box-shadow:0 10px 25px rgba(167,139,250,0.12); overflow:hidden;">
+          style="background:#ffffff;border-radius:16px;
+                 box-shadow:0 12px 30px rgba(167,139,250,0.15);
+                 overflow:hidden;">
 
-            <!-- HEADER -->
-            <tr>
-                <td style="
-                    padding:18px;
-                    background:linear-gradient(135deg,#a78bfa,#f472b6);
-                    text-align:center;
-                    font-size:20px;
-                    font-weight:600;
-                    color:white;
-                ">
-                    SkillAI
-                </td>
-            </tr>
-
-            <!-- BODY -->
-            <tr>
-                <td style="padding:24px; color:#1e1b4b;">
-
-                    <!-- LABEL -->
-                    <div style="
-                        font-size:12px;
-                        color:{config['color']};
-                        font-weight:600;
-                        margin-bottom:12px;
-                        letter-spacing:0.3px;
-                    ">
-                        {config['label']}
-                    </div>
-
-                    <!-- CONTENT -->
-                    <td width="50" valign="top">
-    <table width="48" height="48" cellpadding="0" cellspacing="0"
-        style="background:{config['bg']}; border-radius:12px;">
-        <tr>
-            <td align="center" valign="middle"
-                style="font-size:26px; color:{config['color']}; line-height:1;">
-                {config['icon']}
+          <!-- HEADER -->
+          <tr>
+            <td style="
+              padding:20px;
+              background:linear-gradient(135deg,#a78bfa,#f472b6);
+              text-align:center;
+              font-size:20px;
+              font-weight:700;
+              color:white;">
+              SkillAI ✦
             </td>
-        </tr>
-    </table>
-</td>
+          </tr>
 
-                            <td style="padding-left:10px;">
-                                <div style="font-size:15px; font-weight:600;">
-                                    {title}
-                                </div>
+          <!-- BODY -->
+          <tr>
+            <td style="padding:28px;">
 
-                                <div style="font-size:13px; color:#64748b; margin-top:6px; line-height:1.5;">
-                                    {message}
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
+              <p style="margin:0 0 18px 0;font-size:14px;color:#475569;">
+                Hi <strong>{user.username}</strong>,
+              </p>
 
-                    <!-- DIVIDER -->
-                    <div style="margin:20px 0; height:1px; background:#e2e8f0;"></div>
+              <!-- TYPE LABEL -->
+              <div style="
+                font-size:12px;
+                color:{config['color']};
+                font-weight:700;
+                margin-bottom:14px;">
+                {config['label']}
+              </div>
 
-                    <!-- EXTRA INFO -->
-                    <div style="font-size:13px; color:#475569; line-height:1.6;">
-                        SkillAI helps you stay consistent with your learning, track progress,
-                        and discover personalized career paths through AI-driven insights.
-                    </div>
+              <!-- CARD -->
+              <table width="100%" cellpadding="0" cellspacing="0"
+                     style="background:#f8fafc;border-radius:12px;padding:14px;">
+                <tr>
 
-                    <!-- BUTTON -->
-                    <div style="text-align:center; margin:26px 0;">
-                        <a href="{dashboard_url}"
-                            style="
-                            background:linear-gradient(135deg,#a78bfa,#f472b6);
-                            color:white;
-                            padding:12px 26px;
-                            text-decoration:none;
-                            border-radius:8px;
-                            font-size:13px;
-                            font-weight:600;
-                            display:inline-block;
-                            ">
-                            View Notification
-                        </a>
-                    </div>
-
-                    <!-- FOOTER -->
+                  <!-- ICON -->
+                  <td width="50" valign="top">
                     <div style="
-                        text-align:center;
-                        font-size:12px;
-                        color:#94a3b8;
-                        line-height:1.5;
-                    ">
-                        © 2026 SkillAI · Built for learning and career growth
+                      width:44px;height:44px;
+                      background:{config['bg']};
+                      border-radius:10px;
+                      display:flex;
+                      align-items:center;
+                      justify-content:center;
+                      font-size:22px;
+                      color:{config['color']};">
+                      {config['icon']}
+                    </div>
+                  </td>
+
+                  <!-- TEXT -->
+                  <td style="padding-left:12px;">
+                    <div style="font-size:15px;font-weight:700;color:#1e1b4b;">
+                      {title}
                     </div>
 
-                </td>
-            </tr>
+                    <div style="font-size:13px;color:#64748b;margin-top:6px;line-height:1.5;">
+                      {message}
+                    </div>
+                  </td>
+
+                </tr>
+              </table>
+
+              <!-- BUTTON -->
+              <div style="text-align:center;margin:26px 0;">
+                <a href="{dashboard_url}" style="
+                  background:linear-gradient(135deg,#a78bfa,#f472b6);
+                  color:white;
+                  padding:12px 26px;
+                  border-radius:10px;
+                  text-decoration:none;
+                  font-size:13px;
+                  font-weight:600;
+                  display:inline-block;">
+                  View Notification
+                </a>
+              </div>
+
+              <!-- FOOTER -->
+              <div style="
+                text-align:center;
+                font-size:12px;
+                color:#94a3b8;
+                line-height:1.6;">
+                You're receiving this because of activity on your SkillAI account.<br>
+                © 2026 SkillAI · Built for learning and career growth
+              </div>
+
+            </td>
+          </tr>
 
         </table>
 
-        </td>
-        </tr>
-        </table>
-
-        </div>
-        """
+      </td>
+    </tr>
+  </table>
+</div>
+"""
 
     text_content = strip_tags(html_content)
 
