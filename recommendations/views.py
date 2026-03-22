@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.utils import timezone
 from skills.models import LearningResource, LearningProgress, UserSkill
-
+from .models import UserAchievement
 
 from skills.models import (
     UserSkill,
@@ -12,7 +12,7 @@ from skills.models import (
     JobRole,
     LearningProgress
 )
-
+from notifications.services import create_notification
 from accounts.models import Achievement
 
 @login_required
@@ -100,10 +100,12 @@ def complete_resource(request, resource_id):
 
         if not progress.completed:
 
+            # ✅ mark complete
             progress.completed = True
             progress.completed_at = timezone.now()
             progress.save()
 
+            # ✅ update skill
             user_skill, created = UserSkill.objects.get_or_create(
                 user=request.user,
                 skill=resource.skill
@@ -113,6 +115,15 @@ def complete_resource(request, resource_id):
                 user_skill.level += 1
                 user_skill.save()
 
+                # 🔔 Skill notification
+                create_notification(
+                    user=request.user,
+                    title="Skill Improved",
+                    message=f"{resource.skill.name} level increased",
+                    type="progress"
+                )
+
+            # ✅ counts
             completed_count = LearningProgress.objects.filter(
                 user=request.user,
                 completed=True
@@ -120,36 +131,76 @@ def complete_resource(request, resource_id):
 
             total_resources = LearningResource.objects.count()
 
+            # =========================
+            # 🏆 BADGES + NOTIFICATIONS
+            # =========================
+
+            # First badge
             if completed_count == 1:
-                Achievement.objects.get_or_create(
+                achievement, created = UserAchievement.objects.get_or_create(
                     user=request.user,
-                    title="First Step 🚀",
-                    description="Completed your first learning resource",
-                    badge_icon="⭐"
+                    name="First Step",
+                    description="Completed your first learning resource"
                 )
+                if created:
+                    create_notification(
+                        user=request.user,
+                        title="New Badge Earned",
+                        message="You unlocked 'First Step'",
+                        type="badge"
+                    )
 
+            # 5 resources
             if completed_count == 5:
-                Achievement.objects.get_or_create(
+                achievement, created = UserAchievement.objects.get_or_create(
                     user=request.user,
-                    title="Learning Streak 🔥",
-                    description="Completed 5 learning resources",
-                    badge_icon="🔥"
+                    name="Learning Streak",
+                    description="Completed 5 learning resources"
                 )
+                if created:
+                    create_notification(
+                        user=request.user,
+                        title="New Badge Earned",
+                        message="You unlocked 'Learning Streak'",
+                        type="badge"
+                    )
 
+            # 10 resources
             if completed_count == 10:
-                Achievement.objects.get_or_create(
+                achievement, created = UserAchievement.objects.get_or_create(
                     user=request.user,
-                    title="Skill Builder 🧠",
-                    description="Completed 10 learning resources",
-                    badge_icon="🧠"
+                    name="Skill Builder",
+                    description="Completed 10 learning resources"
                 )
+                if created:
+                    create_notification(
+                        user=request.user,
+                        title="New Badge Earned",
+                        message="You unlocked 'Skill Builder'",
+                        type="badge"
+                    )
 
+            # Full roadmap badge
             if completed_count == total_resources:
-                Achievement.objects.get_or_create(
+                achievement, created = UserAchievement.objects.get_or_create(
                     user=request.user,
-                    title="Roadmap Master 🏆",
-                    description="Completed the entire learning roadmap",
-                    badge_icon="🏆"
+                    name="Roadmap Master",
+                    description="Completed entire roadmap"
+                )
+                if created:
+                    create_notification(
+                        user=request.user,
+                        title="New Badge Earned",
+                        message="You unlocked 'Roadmap Master'",
+                        type="badge"
+                    )
+
+                # 💼 JOB READY NOTIFICATION (ADD THIS)
+                create_notification(
+                    user=request.user,
+                    title="Job Ready",
+                    message="You are now ready for your target job role",
+                    type="career"
                 )
 
     return redirect("learning_path")
@@ -179,7 +230,7 @@ def progress_view(request):
         user=request.user
     ).select_related("skill")
 
-    achievements = Achievement.objects.filter(user=request.user)
+    achievements = UserAchievement.objects.filter(user=request.user)
 
     # Check if roadmap completed
     total_resources = LearningResource.objects.count()
@@ -204,39 +255,29 @@ def progress_view(request):
 
     return render(request, "recommendations/progress.html", context)
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from .models import UserAchievement
 
-
 @login_required
-@require_POST
 def claim_badge(request, badge_id):
 
-    try:
-        badge = UserAchievement.objects.get(
+    if request.method == "POST":
+
+        badge = UserAchievement.objects.filter(
             id=badge_id,
             user=request.user
-        )
+        ).first()
 
-        # If already claimed
+        if not badge:
+            return JsonResponse({"status": "error"})
+
         if badge.is_claimed:
-            return JsonResponse({
-                "status": "already_claimed",
-                "claimed": True
-            })
+            return JsonResponse({"status": "already_claimed"})
 
-        # Claim badge
         badge.is_claimed = True
         badge.save()
 
-        return JsonResponse({
-            "status": "success",
-            "claimed": True
-        })
+        return JsonResponse({"status": "success"})
 
-    except UserAchievement.DoesNotExist:
-        return JsonResponse({
-            "status": "error",
-            "message": "Badge not found"
-        }, status=404)
+    return JsonResponse({"status": "invalid"})
+

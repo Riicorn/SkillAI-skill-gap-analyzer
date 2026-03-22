@@ -16,6 +16,8 @@ urlpatterns = [
 
     path('skills/', include('skills.urls')),
     path('recommendations/', include('recommendations.urls')),
+    path('notifications/', include('notifications.urls')),
+    
 ]
 
 if settings.DEBUG:

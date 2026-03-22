@@ -16,7 +16,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',  
-
+    
     # Third Party Apps
     'allauth',
     'allauth.account',
@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'skills',
     'dashboard',
     'recommendations',
+    'notifications',
 ]
 
 MIDDLEWARE = [
@@ -55,6 +56,7 @@ TEMPLATES = [
                 'django.template.context_processors.request', 
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'accounts.context_processors.user_profile',
             ],
         },
     },
@@ -91,8 +93,19 @@ LOGIN_REDIRECT_URL = 'onboarding'
 LOGOUT_REDIRECT_URL = 'landing'
 ACCOUNT_LOGIN_ON_SIGNUP = False
 ACCOUNT_ADAPTER = "accounts.adapter.MyAccountAdapter"
+CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8000"]
 # Allauth Settings
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Email Settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = 'team.skillai@gmail.com'
+EMAIL_HOST_PASSWORD = 'qodi ubty gjkf ctok'
+
+DEFAULT_FROM_EMAIL = "SkillAI <team.skillai@gmail.com>"
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
 ACCOUNT_LOGOUT_ON_GET = True
 SOCIALACCOUNT_LOGIN_ON_GET = True

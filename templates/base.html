@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
 <title>SkillAI | Dashboard</title>
 
 <!-- Bootstrap 5.3.2 CSS (ONLY ONE VERSION) -->
@@ -205,6 +206,201 @@ display:flex;
 flex-direction:column;
 line-height:1.1;
 }
+/* Notification Dot */
+.notif-dot{
+position:absolute;
+top:6px;
+right:6px;
+width:10px;
+height:10px;
+background:#f43f5e;
+border-radius:50%;
+animation:pulse 1.5s infinite;
+}
+
+/* Pulse animation */
+@keyframes pulse{
+0%{transform:scale(1);opacity:1;}
+50%{transform:scale(1.4);opacity:0.6;}
+100%{transform:scale(1);opacity:1;}
+}
+
+.notif-dropdown{
+    width:320px;
+    height:420px;              /* 👈 FIXED HEIGHT */
+    border-radius:18px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+
+    position:absolute;
+    right:0;
+    top:100%;
+    z-index:1050;
+}
+
+/* Animation */
+@keyframes fadeSlide{
+from{
+opacity:0;
+transform:translateY(10px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+/* Header */
+.notif-header{
+padding:14px;
+font-weight:600;
+border-bottom:1px solid var(--border);
+}
+.notif-item{
+display:flex;
+gap:12px;
+padding:14px;
+border-radius:12px;
+transition:0.2s;
+margin-bottom:6px;
+}
+
+.notif-item:hover{
+background:#f8fafc;
+transform:translateX(4px);
+}
+
+/* ICON */
+.notif-icon{
+width:38px;
+height:38px;
+border-radius:12px;
+display:flex;
+align-items:center;
+justify-content:center;
+color:white;
+font-size:14px;
+flex-shrink:0;
+}
+
+/* COLORS (soft, premium) */
+.notif-icon.badge { background:linear-gradient(135deg,#a78bfa,#c084fc); }
+.notif-icon.course { background:linear-gradient(135deg,#60a5fa,#3b82f6); }
+.notif-icon.progress { background:linear-gradient(135deg,#34d399,#10b981); }
+.notif-icon.career { background:linear-gradient(135deg,#f59e0b,#fbbf24); }
+.notif-icon.system { background:linear-gradient(135deg,#64748b,#475569); }
+
+/* TEXT */
+.notif-title{
+font-weight:600;
+font-size:0.9rem;
+}
+
+.notif-text{
+font-size:0.8rem;
+color:#64748b;
+margin-top:2px;
+}
+
+.notif-time{
+font-size:0.7rem;
+color:#94a3b8;
+}
+.notif-footer{
+    padding:12px;
+    border-top:1px solid var(--border);
+    text-align:center;
+    margin-top:4px;
+}
+
+.notif-view-btn{
+    display:inline-block;
+    padding:8px 16px;
+    border-radius:10px;
+    font-size:0.85rem;
+    font-weight:600;
+    text-decoration:none;
+
+    background:linear-gradient(135deg,#a78bfa,#f472b6);
+    color:white;
+
+    transition:0.2s;
+}
+
+.notif-view-btn:hover{
+    opacity:0.9;
+    transform:translateY(-1px);
+    color:white;
+}
+.toast-container{
+    position:fixed;
+    top:20px;
+    right:20px;
+    z-index:9999;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.toast{
+    background:white;
+    padding:12px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.1);
+}
+
+.toast-icon{
+    width:34px;
+    height:34px;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+}
+
+.toast.badge .toast-icon { background:#a78bfa; }
+.toast.career .toast-icon { background:#f59e0b; }
+.toast.progress .toast-icon { background:#34d399; }
+
+@keyframes slideIn{
+    from{
+        transform:translateX(100%);
+        opacity:0;
+    }
+    to{
+        transform:translateX(0);
+        opacity:1;
+    }
+}
+.notif-body{
+    max-height:260px;   /* 👈 controls height */
+    overflow-y:auto;    /* 👈 enables scroll */
+    padding-right:4px;
+}
+.notif-body::-webkit-scrollbar{
+    width:6px;
+}
+
+.notif-body::-webkit-scrollbar-thumb{
+    background:#cbd5f5;
+    border-radius:10px;
+}
+
+.notif-body::-webkit-scrollbar-track{
+    background:transparent;
+}
+.dropdown-menu:not(.show){
+    display:none !important;
+}
+.notif-item.unread{
+    background:rgba(99,102,241,0.08);
+    border-left:3px solid #6366f1;
+}
     </style>
 </head>
 
@@ -216,6 +412,7 @@ line-height:1.1;
             <i class="fa fa-brain text-white"></i>
         </div>
         <h4 class="mb-0 fw-bold">SkillAI</h4>
+        
     </div>
 
 
@@ -289,7 +486,7 @@ line-height:1.1;
 
 <div class="header-left">
     <h4 class="fw-bold mb-0">
-        Hello, {{ user.username|default:"Learner" }} 👋
+        Hello, {{ user.username|default:"Learner" }} 
     </h4>
     <small class="text-muted">
         Track your skill growth and career insights
@@ -304,56 +501,84 @@ line-height:1.1;
     </button>
 
     <!-- Notification -->
-    <button class="icon-btn">
+    <div class="dropdown notification-wrapper">
+
+    <button class="icon-btn position-relative" data-bs-toggle="dropdown">
         <i class="fa fa-bell"></i>
+
+        <!-- Notification badge -->
+        <span class="notif-dot"></span>
     </button>
 
-    <!-- Profile -->
-    <div class="dropdown">
-        <div class="profile-box" data-bs-toggle="dropdown">
+    <!-- DROPDOWN -->
+    <div class="dropdown-menu dropdown-menu-end p-0 notif-dropdown">
 
-            <img
-            src="https://ui-avatars.com/api/?name={{ user.username }}&background=6366f1&color=fff"
-            class="profile-avatar">
-
-            <div class="profile-info d-none d-md-block">
-                <span class="fw-semibold">{{ user.username }}</span>
-                <small class="text-muted">View profile</small>
-            </div>
-
-            <i class="fa fa-chevron-down small"></i>
-
+        <div class="notif-header">
+            Notifications
         </div>
 
-        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 mt-2">
+       <div class="notif-body"></div>
 
-            <li class="px-3 py-2 text-muted small border-bottom">
-                {{ user.email }}
-            </li>
+        <div class="notif-footer">
+    <div class="notif-footer">
+    <a href="/notifications/all/" class="notif-view-btn">
+        View all notifications
+    </a>
+</div>
+</div>
 
-            <li class="nav-item">
-            <a href="{% url 'profile' %}" class="nav-link">
-            <i class="fa fa-user me-2"></i> Profile
-            </a>
-            </li>
-
-            <li>
-                <a class="dropdown-item" href="#">
-                    <i class="fa fa-cog me-2"></i> Settings
-                </a>
-            </li>
-
-            <li><hr class="dropdown-divider"></li>
-
-            <li>
-                <a class="dropdown-item text-danger"
-                href="{% url 'account_logout' %}">
-                <i class="fa fa-sign-out-alt me-2"></i> Logout
-                </a>
-            </li>
-
-        </ul>
     </div>
+</div>
+
+    <!-- Profile -->
+   <div class="dropdown">
+
+    <div class="profile-box" data-bs-toggle="dropdown" aria-expanded="false">
+
+        {% if global_profile.profile_picture %}
+    <img src="{{ global_profile.profile_picture.url }}" class="profile-avatar">
+{% else %}
+    <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=6366f1&color=fff" class="profile-avatar">
+{% endif %}
+
+        <div class="profile-info d-none d-md-block">
+            <span class="fw-semibold">{{ user.username }}</span>
+            <small class="text-muted">View profile</small>
+        </div>
+
+        <i class="fa fa-chevron-down small"></i>
+    </div>
+
+    <!-- DROPDOWN MENU -->
+    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 mt-2">
+
+        <li class="px-3 py-2 text-muted small border-bottom">
+            {{ user.email }}
+        </li>
+
+        <li>
+            <a href="{% url 'profile' %}" class="dropdown-item">
+                <i class="fa fa-user me-2"></i> Profile
+            </a>
+        </li>
+
+        <li>
+            <a class="dropdown-item" href="#">
+                <i class="fa fa-cog me-2"></i> Settings
+            </a>
+        </li>
+
+        <li><hr class="dropdown-divider"></li>
+
+        <li>
+            <a class="dropdown-item text-danger" href="{% url 'account_logout' %}">
+                <i class="fa fa-sign-out-alt me-2"></i> Logout
+            </a>
+        </li>
+
+    </ul>
+
+</div>
 
 </div>
 
@@ -372,16 +597,123 @@ line-height:1.1;
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            const icon = document.querySelector('.fa-moon');
-            if(document.body.classList.contains('dark-mode')) {
-                icon.classList.replace('fa-moon', 'fa-sun');
-            } else {
-                icon.classList.replace('fa-sun', 'fa-moon');
-            }
+
+let shownNotifications = new Set();  // ✅ move here (GLOBAL)
+
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    const icon = document.querySelector('.fa-moon, .fa-sun');
+
+    if(document.body.classList.contains('dark-mode')) {
+        icon.classList.replace('fa-moon', 'fa-sun');
+    } else {
+        icon.classList.replace('fa-sun', 'fa-moon');
+    }
+}
+
+const iconMap = {
+    badge: "fa-award",
+    course: "fa-book",
+    progress: "fa-chart-line",
+    career: "fa-briefcase",
+    system: "fa-bolt"
+};
+
+async function loadNotifications() {
+    const res = await fetch('/notifications/');
+    const data = await res.json();
+
+    const container = document.querySelector('.notif-body');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    if (data.notifications.length === 0) {
+        container.innerHTML = `
+            <div class="text-center p-3 text-muted">
+                No notifications yet
+            </div>
+        `;
+        return;
+    }
+
+    data.notifications.forEach(n => {
+
+        const key = n.title + n.message;
+
+        // ✅ show toast only once
+        if (!shownNotifications.has(key)) {
+            showToast(n.title, n.message, n.type);
+            shownNotifications.add(key);
         }
-    </script>
-    
+
+        container.innerHTML += `
+<div class="notif-item">
+
+    <div class="notif-icon ${n.type}">
+        <i class="fa ${iconMap[n.type] || 'fa-bell'}"></i>
+    </div>
+
+    <div class="flex-grow-1">
+
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="notif-title">${n.title}</div>
+            <div class="notif-time">${n.time}</div>
+        </div>
+
+        <div class="notif-text">${n.message}</div>
+
+    </div>
+
+</div>
+`;
+    });
+}
+
+// Bootstrap dropdown trigger
+document.addEventListener("DOMContentLoaded", function () {
+    const btn = document.querySelector('.notification-wrapper button');
+
+    if (btn) {
+        btn.addEventListener('click', function () {
+            console.log("clicked notification bell");
+            loadNotifications();
+        });
+    }
+});
+function showToast(title, message, type="system") {
+
+    const iconMap = {
+        badge: "fa-award",
+        career: "fa-briefcase",
+        progress: "fa-chart-line",
+        system: "fa-bell"
+    };
+
+    const container = document.getElementById("toast-container");
+    if (!container) return;
+
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+
+    toast.innerHTML = `
+        <div class="toast-icon">
+            <i class="fa ${iconMap[type] || 'fa-bell'}"></i>
+        </div>
+        <div>
+            <div class="fw-semibold">${title}</div>
+            <div class="text-muted small">${message}</div>
+        </div>
+    `;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+</script>
+<div id="toast-container" class="toast-container"></div>
 </body>
 </html>

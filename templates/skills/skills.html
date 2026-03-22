@@ -107,14 +107,31 @@ transition:0.2s;
 background:linear-gradient(135deg,#a78bfa,#f472b6);
 color:white;
 }
+.skill-scroll {
+    max-height: 350px;   /* adjust if needed */
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+/* smooth scrollbar (optional but clean) */
+.skill-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.skill-scroll::-webkit-scrollbar-thumb {
+    background: rgba(167,139,250,0.4);
+    border-radius: 10px;
+}
+
+.skill-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(167,139,250,0.6);
+}
 </style>
 
-<div class="container py-5">
-
+<div class="container py-1">
 <div class="d-flex justify-content-between align-items-center mb-5">
-
 <div>
-<h1 class="gradient-text mb-1">My Skill DNA</h1>
+<h2 class="fw-bold" style="color:#4c1d95;">My Skill DNA</h2>
 <p class="text-muted">Analyze your MCA expertise and bridge the gaps.</p>
 </div>
 
@@ -210,7 +227,7 @@ Skill Inventory
 
 </h5>
 
-<div class="table-responsive">
+<div class="table-responsive skill-scroll">
 
 <table class="table table-borderless align-middle">
 
@@ -293,11 +310,12 @@ Skill Visualization
 <div class="mt-4 p-3"
 style="background:#fbcfe8;border-radius:1rem;border-left:5px solid #f472b6;">
 
-<p class="mb-0 small fw-bold">
-
-🚀 AI Insight:
-Learning missing DevOps skills like Docker could increase your hireability.
-
+<p class="mb-0 small fw-bold d-flex align-items-start" style="gap:8px;">
+    <i class="fa-solid fa-lightbulb" style="color:#f472b6;margin-top:2px;"></i>
+    <span>
+        <strong>AI Insight:</strong>
+        Learning missing DevOps skills like Docker could increase your hireability.
+    </span>
 </p>
 
 </div>

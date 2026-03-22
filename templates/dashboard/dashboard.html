@@ -267,7 +267,11 @@ style="background:linear-gradient(135deg,#a78bfa,#f472b6);color:white;font-weigh
 <div class="mb-3">
 <span class="small text-white-50">TARGET ROLE</span>
 <div class="badge bg-white text-primary px-3 py-2 rounded-pill">
-{{ target_role|default:"Not selected" }}
+{% if target_role %}
+    {{ target_role.title }}
+{% else %}
+    <span class="text-muted">No role selected</span>
+{% endif %}
 </div>
 </div>
 

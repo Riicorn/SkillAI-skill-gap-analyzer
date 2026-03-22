@@ -12,9 +12,5 @@ urlpatterns = [
         views.complete_resource,
         name="complete_resource"
     ),
-    path(
-    "claim-achievement/<int:badge_id>/",
-    views.claim_badge,
-    name="claim_badge"
-)
+    path('claim-badge/<int:badge_id>/', views.claim_badge, name='claim_badge'),
 ]

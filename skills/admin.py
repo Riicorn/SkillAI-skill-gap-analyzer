@@ -26,8 +26,26 @@ class UserSkillAdmin(admin.ModelAdmin):
     list_display = ('user', 'skill', 'level', 'confidence_level')
 
 
+from notifications.services import create_notification
+from django.contrib.auth.models import User
+
+
 @admin.register(LearningResource)
 class LearningResourceAdmin(admin.ModelAdmin):
     list_display = ('skill', 'title', 'resource_type', 'is_free')
     list_filter = ('resource_type', 'is_free')
-    
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+
+        # ✅ Only when NEW course is created
+        if not change:
+            users = User.objects.all()
+
+            for user in users:
+                create_notification(
+                    user=user,
+                    title="New Course Available",
+                    message=f"{obj.title} has been added",
+                    type="course"
+                )

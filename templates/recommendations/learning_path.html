@@ -3,6 +3,7 @@
 
 <style>
 
+
 :root{
 --primary-grad:linear-gradient(135deg,#a78bfa,#f472b6);
 --dark-indigo:#1e1b4b;
@@ -14,8 +15,6 @@ background:#fdf2f8;
 font-family:'Plus Jakarta Sans',sans-serif;
 color:var(--dark-indigo);
 }
-
-/* Timeline */
 
 .roadmap-container{
 position:relative;
@@ -37,7 +36,7 @@ border-radius:10px;
 
 .roadmap-step{
 position:relative;
-margin-bottom:3rem;
+margin-bottom:40px; /* ✅ FIXED spacing */
 }
 
 /* Step node */
@@ -108,7 +107,10 @@ z-index:2;
 
 .fireworks-celebration{
 position:relative;
-display:inline-block;
+display:block;          /* ✅ change */
+width:fit-content;      /* keeps size tight */
+margin:0 auto;          /* 🔥 centers horizontally */
+text-align:center;
 }
 
 .fireworks-container{
@@ -253,38 +255,74 @@ transform:translateY(-3px);
 box-shadow:0 18px 40px rgba(0,0,0,0.2);
 }
 
+.resource-list{
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+.resource-row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:#f8fafc;
+padding:10px 14px;
+border-radius:12px;
+border:1px solid #e2e8f0;
+transition:.2s;
+}
+
+.resource-row:hover{
+background:#f1f5f9;
+}
+
+/* title */
+
+.resource-title{
+font-weight:600;
+color:#1e293b;
+text-decoration:none;
+flex:1;
+}
+
+.resource-title:hover{
+color:#7c3aed;
+}
+
+/* keep button aligned */
+
+.resource-row form{
+margin:0;
+}
+.complete-btn, .resource-completed{
+min-width:110px;
+justify-content:center;
+}
 </style>
+
+
+
 
 
 <div class="container py-5">
 
-<!-- HEADER -->
-
-<!-- HERO HEADER -->
-
 <div class="text-center mb-5 hero-section">
 
-
-
-<h1 class="hero-title">
+<h1 class="fw-bold" style="color:#4c1d95;">
 Bridge the Gap to 
 <span class="role-highlight">
 {{ target_role.title|default:"Your Career Goal" }}
 </span>
 </h1>
+
 <p class="hero-subtitle">
   Your personalized learning roadmap
 </p>
 
-
-<!-- GLOBAL PROGRESS -->
-
 <div class="progress-wrapper">
-
 <div class="progress-track">
 
 {% widthratio completed_steps total_steps 100 as progress %}
-
 <div class="progress-fill" style="width:{{ progress }}%"></div>
 
 </div>
@@ -294,6 +332,7 @@ Bridge the Gap to
 </p>
 </div>
 
+</div>
 
 {% if roadmap_items %}
 
@@ -310,52 +349,31 @@ Bridge the Gap to
 <div class="learning-card">
 
 <div class="d-flex justify-content-between align-items-center mb-2">
-
-<h4 class="fw-bold">
-{{ item.skill.name }}
-</h4>
-
-<span class="badge bg-light text-dark">
-Gap {{ item.gap_severity }}
-</span>
-
+<h4 class="fw-bold">{{ item.skill.name }}</h4>
+<span class="badge bg-light text-dark">Gap {{ item.gap_severity }}</span>
 </div>
 
-
-<!-- SKILL PROGRESS -->
-
-<div class="progress mb-2"
-style="height:8px;background:#e2e8f0">
-
+<div class="progress mb-2" style="height:8px;background:#e2e8f0">
 {% widthratio item.current_level item.target_level 100 as width %}
-
-<div class="progress-bar"
-style="width:{{ width }}%;background:var(--primary-grad)">
-</div>
-
+<div class="progress-bar" style="width:{{ width }}%;background:var(--primary-grad)"></div>
 </div>
 
 <p class="small text-muted mb-4">
 Level {{ item.current_level }} → {{ item.target_level }}
 </p>
 
-
 <h6 class="text-uppercase small text-muted mb-3">
 Recommended Learning
 </h6>
 
-<div class="d-flex flex-wrap gap-3">
+<div class="resource-list">
 
 {% for resource in item.resources %}
 
-<div class="d-flex gap-2 align-items-center">
+<div class="resource-row">
 
-<a href="{{ resource.link }}"
-target="_blank"
-class="resource-pill">
-
+<a href="{{ resource.link }}" target="_blank" class="resource-title">
 {{ resource.title }}
-
 </a>
 
 {% if resource.id in completed_resource_ids %}
@@ -367,16 +385,12 @@ Completed
 
 {% else %}
 
-<form method="post"
-action="{% url 'complete_resource' resource.id %}">
-
+<form method="post" action="{% url 'complete_resource' resource.id %}">
 {% csrf_token %}
-
 <button type="submit" class="complete-btn">
 <i class="fa-solid fa-check"></i>
 Complete
 </button>
-
 </form>
 
 {% endif %}
@@ -394,7 +408,6 @@ All resources completed for this skill 🎉
 </div>
 
 </div>
-
 </div>
 
 {% endfor %}
@@ -403,27 +416,24 @@ All resources completed for this skill 🎉
 
 {% else %}
 
-<!-- COMPLETION SCREEN -->
+<!-- ✅ FIXED: ONLY SHOW WHEN FULLY COMPLETED -->
 
-<div class="text-center mt-5">
-
-<!-- COMPLETION SCREEN -->
 <div class="text-center mt-5 fireworks-celebration">
 
-    <div class="fireworks-container"></div>
+<div class="fireworks-container"></div>
 
-    <div class="trophy">🏆</div>
+<div class="trophy">🏆</div>
 
-    <h2 class="fw-bold mt-3">Learning Path Completed!</h2>
+<h2 class="fw-bold mt-3">Learning Path Completed!</h2>
 
-    <p class="text-muted">
-        You finished all learning resources for this role.
-    </p>
+<p class="text-muted">
+You finished all learning resources for this role.
+</p>
 
-   <a href="{% url 'progress' %}" class="badge-btn mt-3">
-        <i class="fa-solid fa-award"></i>
-        Claim Your Badge
-        </a>
+<a href="{% url 'progress' %}" class="badge-btn mt-3">
+<i class="fa-solid fa-award"></i>
+Claim Your Badge
+</a>
 
 </div>
 
@@ -431,49 +441,35 @@ All resources completed for this skill 🎉
 
 </div>
 
-
-
-
 <script>
-
 function createFireworks(){
-
 const container = document.querySelector(".fireworks-container")
 if(!container) return
-
 container.innerHTML=""
 
 for(let i=0;i<200;i++){
-
 const spark=document.createElement("div")
 spark.className="spark"
 
 const colors=["#f472b6","#a78bfa","#facc15","#6366f1","#fb7185"]
-
 spark.style.background=colors[Math.floor(Math.random()*colors.length)]
 
 const angle=Math.random()*2*Math.PI
 const radius=80+Math.random()*120
 
-const x=Math.cos(angle)*radius+"px"
-const y=Math.sin(angle)*radius+"px"
-
-spark.style.setProperty("--x",x)
-spark.style.setProperty("--y",y)
+spark.style.setProperty("--x",Math.cos(angle)*radius+"px")
+spark.style.setProperty("--y",Math.sin(angle)*radius+"px")
 
 spark.style.left="50%"
 spark.style.top="20%"
-
 spark.style.animationDelay=(Math.random()*0.4)+"s"
 
 container.appendChild(spark)
-
 }
-
 }
 
 createFireworks()
 setInterval(createFireworks,1500)
-
 </script>
+
 {% endblock %}

@@ -159,14 +159,16 @@ color:#d97706;
 } */
 
 /* The "Glow" behind the icon */
-.achievement-card::before{
-pointer-events:none;
-z-index:0;
+
+
+.achievement-card::before {
+    display: none !important;
 }
 
-.achievement-card *{
-position:relative;
-z-index:1;
+.btn-claim {
+    position: relative;
+    z-index: 9999 !important;
+    pointer-events: auto !important;
 }
 
 .achievement-card:hover {
@@ -224,7 +226,7 @@ z-index:1;
 .achievement-card:hover .badge-orb {
     animation: float 2s ease-in-out infinite;
 }
-.btn-claim {
+/* .btn-claim {
     background: var(--primary-grad);
     color: white;
     border: none;
@@ -235,7 +237,11 @@ z-index:1;
     cursor: pointer;
     transition: 0.3s;
     box-shadow: 0 4px 10px rgba(167, 139, 250, 0.3);
-}
+    position: relative;
+    z-index: 999;
+    pointer-events: auto;
+} */
+
 
 .btn-claim:hover {
     transform: scale(1.05);
@@ -263,6 +269,79 @@ z-index:1;
     50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
     100% { transform: scale(1); }
 }
+.achievement-alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;   /* 👈 adds space from top */
+    margin-bottom: 20px;
+
+    background: rgba(167,139,250,0.08); /* soft purple instead of green */
+    border: 1px solid rgba(167,139,250,0.2);
+
+    padding: 12px 16px;
+    border-radius: 12px;
+
+    font-size: 0.9rem;
+    color: #4c1d95;
+
+    margin-bottom: 20px;
+}
+
+.achievement-alert i {
+    color: #a78bfa;
+    font-size: 1rem;
+}
+.achievement-alert {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.empty-state {
+    border: 2px dashed #e2e8f0;
+    border-radius: 18px;
+    padding: 40px 20px;
+    text-align: center;
+    background: rgba(255,255,255,0.5);
+}
+
+/* ICON */
+
+.empty-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    background: rgba(167,139,250,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-icon i {
+    color: #a78bfa;
+    font-size: 1.3rem;
+}
+
+/* TEXT */
+
+.empty-title {
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.empty-subtext {
+    font-size: 0.85rem;
+    color: #64748b;
+}
+.claimed-animate {
+    background: linear-gradient(135deg, #10b981, #34d399);
+    transform: scale(1.05);
+    transition: 0.3s;
+}
 </style>
 
 
@@ -272,7 +351,7 @@ z-index:1;
 
 <div class="mb-5">
 
-<h1 class="gradient-text display-5 mb-2">
+<h1 class="fw-bold" style="color:#4c1d95;">
 My Learning Progress
 </h1>
 
@@ -395,11 +474,11 @@ Start your journey today!
 
 {% if achievements %}
 
-<div class="alert alert-success mt-4 rounded-4">
-
-🎉 <strong>New Achievement Unlocked!</strong>  
-Claim your badge below.
-
+<div class="achievement-alert">
+    <i class="fa-solid fa-award"></i>
+    <span>
+        <strong>New achievement unlocked.</strong> Claim your badge below.
+    </span>
 </div>
 
 {% endif %}
@@ -435,6 +514,10 @@ Claim your badge below.
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
         gap: 20px;
+        display: flex;
+    flex-wrap: wrap;
+    
+    align-items: flex-start;
     }
 
     .achievement-card {
@@ -445,7 +528,13 @@ Claim your badge below.
         transition: all 0.3s ease;
         border: 1px solid #f1f5f9;
         position: relative;
-    }
+        max-width: 200px;
+    width: 100%;
+    position: relative;
+     width: 200px;   /* FIXED WIDTH */
+    flex: 0 0 auto; 
+}
+
 
     .achievement-card:hover { transform: translateY(-5px); box-shadow: 0 12px 24px rgba(0,0,0,0.05); }
 
@@ -507,99 +596,97 @@ Claim your badge below.
                 Unlocked Achievements
             </div>
 
-            <div class="achievement-container">
-                {% if achievements %}
-                    {% for badge in achievements %}
-                    <div class="achievement-card" id="achievement-{{ badge.id }}">
-                        <div class="badge-orb">★</div>
-                        <div class="fw-bold mb-1">{{ badge.name }}</div>
-                        <div class="text-muted small mb-3">{{ badge.description }}</div>
+<div class="achievement-container">
+    {% if achievements %}
+        {% for badge in achievements %}
 
-                        <div class="claim-section">
-                            {% if badge.is_claimed %}
-<div class="claimed-status">✓ Claimed</div>
-{% else %}
-<button type="button" class="btn-claim" onclick="claimBadge({{ badge.id }})">
-Claim Reward
-</button>
-{% endif %}
-                        </div>
-                    </div>
-                    {% endfor %}
+        <div class="achievement-card" id="achievement-{{ badge.id }}">
+            
+            <div class="badge-orb">
+                <i class="fa-solid fa-award"></i>
+            </div>
+
+            <div class="fw-bold mb-1">{{ badge.name }}</div>
+            <div class="text-muted small mb-3">{{ badge.description }}</div>
+
+            <div class="claim-section">
+                {% if badge.is_claimed %}
+                    <button class="btn-claim" disabled>✓ Claimed</button>
                 {% else %}
-                    <div class="w-100 text-center p-5 rounded-4" style="border: 2px dashed #e2e8f0; grid-column: 1 / -1;">
-                        <span class="text-muted">No badges yet. Keep learning!</span>
-                    </div>
+                    <button type="button"
+                            class="btn-claim"
+                            id="btn-{{ badge.id }}"
+                            onclick="claimBadge({{ badge.id }})">
+                        Claim Badge
+                    </button>
                 {% endif %}
             </div>
+
+        </div>
+
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fa-solid fa-award"></i>
+            </div>
+            <p class="empty-title">No achievements yet</p>
+            <p class="empty-subtext">Complete courses and unlock your first badge</p>
+        </div>
+    {% endif %}
+</div>
         </div>
     </div>
 </div>
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
 <script>
-
-/* Get CSRF token */
 function getCookie(name) {
-
     let cookieValue = null;
 
     if (document.cookie && document.cookie !== "") {
-
         const cookies = document.cookie.split(";");
 
         for (let i = 0; i < cookies.length; i++) {
-
             const cookie = cookies[i].trim();
 
-            if (cookie.substring(0, name.length + 1) === (name + "=")) {
-
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            if (cookie.startsWith(name + "=")) {
+                cookieValue = cookie.substring(name.length + 1);
                 break;
-
             }
         }
     }
 
     return cookieValue;
 }
+        function claimBadge(badgeId){
 
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-/* Claim Badge */
-
-   function claimBadge(badgeId){
-    alert("Clicked badge " + badgeId);
-}
-
-    fetch(`/recommendations/claim-achievement/${badgeId}/`,{
-    method:"POST",
-    headers:{
-    "X-CSRFToken":getCookie("csrftoken")
-    }
+    fetch(`/recommendations/claim-badge/${badgeId}/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": csrfToken
+        }
     })
-    .then(res=>res.json())
-    .then(data=>{
+    .then(res => res.json())
+    .then(data => {
 
-    if(data.status==="success"){
+        if(data.status === "success"){
 
-    const card=document.getElementById(`achievement-${badgeId}`);
-    const section=card.querySelector(".claim-section");
+            const btn = document.getElementById(`btn-${badgeId}`);
 
-    card.classList.add("just-claimed");
+            btn.innerText = "✓ Claimed";
+            btn.disabled = true;
+            btn.style.opacity = "0.7";
 
-    section.innerHTML=
-    '<div class="claimed-status">✓ Claimed</div>';
+        } else {
+            alert("Error: " + data.status);
+        }
 
-    }
-
-    });
-    }
-    .catch(error => {
-
-            console.error("Error:", error);
-            alert("Server error. Try again.");
-
-        });
-
-    }
-
+    })
+    .catch(err => console.error(err));
+}
+btn.innerText = "✓ Claimed";
+btn.classList.add("claimed-animate");
 </script>
 {% endblock %}

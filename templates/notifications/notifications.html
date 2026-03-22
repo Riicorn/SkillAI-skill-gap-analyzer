@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+/* Container */
+.notif-container{
+    max-width:1200px;   
+    margin:auto;
+    padding:0 20px; 
+}
+
+/* Card (compact) */
+.notif-card{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    
+   
+    background:white;
+    border:1px solid #e2e8f0;
+   
+    transition:0.2s;
+ 
+    padding:8px 10px;     /* 👈 less height */
+    margin-bottom:6px;    /* 👈 tighter gap */
+    border-radius:10px;
+}
+
+
+.notif-card:hover{
+    background:#f8fafc;
+}
+
+/* Icon */
+.notif-icon{
+    width:32px;
+    height:32px;
+    font-size:13px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:14px;
+    flex-shrink:0;
+}
+
+/* Colors */
+.notif-icon.badge { background:linear-gradient(135deg,#a78bfa,#c084fc); }
+.notif-icon.course { background:linear-gradient(135deg,#60a5fa,#3b82f6); }
+.notif-icon.progress { background:linear-gradient(135deg,#34d399,#10b981); }
+.notif-icon.career { background:linear-gradient(135deg,#f59e0b,#fbbf24); }
+.notif-icon.system { background:linear-gradient(135deg,#64748b,#475569); }
+
+/* Text */
+.notif-title{
+    font-weight:600;
+    font-size:0.9rem;
+}
+
+.notif-message{
+    font-size:0.8rem;
+    color:#64748b;
+    margin-top:2px;
+}
+
+/* Time */
+.notif-time{
+    font-size:0.7rem;
+    color:#94a3b8;
+    white-space:nowrap;
+}
+
+/* Header */
+.notif-header{
+    margin-bottom:16px;
+}
+
+.notif-header h4{
+    font-weight:700;
+}
+
+/* Empty */
+.empty-state{
+    text-align:center;
+    color:#94a3b8;
+    margin-top:40px;
+}
+</style>
+
+<div class="notif-container mt-4">
+
+    <!-- Header -->
+ 
+        <h4 class="fw-bold" style="color:#4c1d95;">Notifications</h4>
+        <small class="text-muted">Recent activity</small>
+<br></br>
+
+    {% if notifications %}
+        {% for n in notifications %}
+
+        <div class="notif-card">
+
+            <!-- ICON -->
+            <div class="notif-icon {{ n.type }}">
+                <i class="fa 
+                    {% if n.type == 'badge' %}fa-award
+                    {% elif n.type == 'course' %}fa-book
+                    {% elif n.type == 'progress' %}fa-chart-line
+                    {% elif n.type == 'career' %}fa-briefcase
+                    {% else %}fa-bell
+                    {% endif %}
+                "></i>
+            </div>
+
+            <!-- CONTENT -->
+            <div class="flex-grow-1">
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="notif-title">
+                        {{ n.title }}
+                    </div>
+
+                    <div class="notif-time">
+                        {{ n.created_at|timesince }} ago
+                    </div>
+                </div>
+
+                <div class="notif-message">
+                    {{ n.message }}
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            No notifications yet
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

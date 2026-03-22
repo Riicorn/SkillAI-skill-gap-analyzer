@@ -5,7 +5,7 @@ from skills.models import Skill, UserSkill, JobRole
 import json
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
-
+from skills.utils import calculate_skill_gap
 # 1️⃣ Landing Page
 def landing_page(request):
     if request.user.is_authenticated:
@@ -68,50 +68,16 @@ def onboarding_view(request):
         'job_roles': job_roles,
         'available_skills': available_skills
     })                
-    job_roles = JobRole.objects.all()
-    available_skills = Skill.objects.all()
-
-    if request.method == 'POST':
-        selected_role_id = request.POST.get('job_role')
-        selected_skills = request.POST.getlist('skills')
-        selected_role_id = request.POST.get('job_role')
-
-        if not selected_role_id:
-            return render(request, 'accounts/onboarding.html', {
-                'job_roles': job_roles,
-                'available_skills': available_skills,
-                'error': "Please select a strategic goal."
-            })
-
-        # SAVE ROLE IN SESSION
-        request.session["target_role_id"] = selected_role_id
-
-        # Save user selected skills correctly
-        for skill_id in selected_skills:
-            level_value = request.POST.get(f'level_{skill_id}')
-
-            if level_value:
-                skill = Skill.objects.get(id=skill_id)
-
-                UserSkill.objects.update_or_create(
-                    user=request.user,
-                    skill=skill,
-                    defaults={
-                        'level': int(level_value)  # ✅ CORRECT FIELD NAME
-                    }
-                )
-
-        return redirect('dashboard')
-
-    return render(request, 'accounts/onboarding.html', {
-        'job_roles': job_roles,
-        'available_skills': available_skills
-    })
+    
 # 4️⃣ Dashboard
+from skills.utils import calculate_skill_gap
+
 @login_required
 def dashboard_view(request):
     user = request.user
+
     user_skills = UserSkill.objects.filter(user=user)
+    skills = user_skills
 
     total_skills = user_skills.count()
 
@@ -120,25 +86,48 @@ def dashboard_view(request):
     else:
         avg_level = 0
 
-    # Convert 1-5 scale into percentage
     avg_percentage = int((avg_level / 5) * 100)
 
-    job_match_score = avg_percentage
+    # =============================
+    # 🎯 TARGET ROLE
+    # =============================
+    role_id = request.session.get("target_role_id")
 
-    # Level logic
-    if avg_percentage < 30:
+    target_role = None
+    missing_skills = []
+    job_match_score = 0
+
+    if role_id:
+        target_role = JobRole.objects.filter(id=role_id).first()
+
+    if target_role:
+        gaps, total_gap_score = calculate_skill_gap(user, target_role)
+
+        job_match_score = total_gap_score
+        missing_skills = list(gaps.keys())
+
+    # =============================
+    # 📊 LEVEL
+    # =============================
+    if job_match_score < 30:
         level = "Beginner"
-    elif avg_percentage < 60:
+    elif job_match_score < 60:
         level = "Explorer"
-    elif avg_percentage < 80:
+    elif job_match_score < 80:
         level = "Pro"
     else:
         level = "AI Master"
 
+    # =============================
+    # 📈 CHART DATA
+    # =============================
     skill_labels = [s.skill.name for s in user_skills]
     skill_data = [(s.level / 5) * 100 for s in user_skills]
 
     context = {
+        "skills": skills,
+        "target_role": target_role,
+        "missing_skills": missing_skills,
         "total_skills": total_skills,
         "avg_proficiency": avg_percentage,
         "job_match_score": job_match_score,
@@ -148,7 +137,6 @@ def dashboard_view(request):
     }
 
     return render(request, "dashboard/dashboard.html", context)
-
 # 5️⃣ Custom Login
 
 
@@ -185,26 +173,28 @@ from .models import UserProfile, Achievement
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from .models import UserProfile, Achievement, CareerProgress
-
+from recommendations.models import UserAchievement
 
 @login_required
 def profile_view(request):
 
     user = request.user
 
-    # Get or create profile
     profile, created = UserProfile.objects.get_or_create(user=user)
 
-    # Achievements
-    achievements = Achievement.objects.filter(user=user)
+    # ✅ ONLY CLAIMED BADGES
+    claimed_achievements = UserAchievement.objects.filter(
+        user=request.user,
+        is_claimed=True
+    )
 
-    # Career progress
+    # ✅ Career progress
     progress = CareerProgress.objects.filter(user=user)
 
-    total_achievements = achievements.count()
+    total_achievements = claimed_achievements.count()
 
     # =============================
-    # Profile completion calculation
+    # Profile completion
     # =============================
 
     fields = [
@@ -226,13 +216,9 @@ def profile_view(request):
         profile.profile_completion = completion
         profile.save(update_fields=["profile_completion"])
 
-    # =============================
-    # Context
-    # =============================
-
     context = {
         "profile": profile,
-        "achievements": achievements,
+        "claimed_achievements": claimed_achievements,  # ✅ FIXED
         "progress": progress,
         "total_achievements": total_achievements,
         "skill_score": profile.skill_score,

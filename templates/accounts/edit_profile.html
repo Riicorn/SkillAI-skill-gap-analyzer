@@ -1,35 +1,200 @@
-<h2>Edit Profile</h2>
+{% extends 'base.html' %}
+{% block content %}
 
-<form method="POST" enctype="multipart/form-data">
-{% csrf_token %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #a78bfa, #f472b6);
+        --text-main: #1e1b4b;
+        --text-muted: #64748b;
+    }
 
-<label>Profile Photo</label>
-<input type="file" name="profile_picture"><br><br>
+    body {
+        background-color: #fdf2f8;
+        font-family: 'Inter', sans-serif;
+    }
 
-<label>Bio</label>
-<textarea name="bio">{{ profile.bio }}</textarea><br><br>
+    .glass-card {
+        max-width: 750px;
+        margin: 40px auto;
+        padding: 30px;
+        border-radius: 24px;
+        background: rgba(255,255,255,0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
 
-<label>Career Goal</label>
-<input type="text" name="career_goal" value="{{ profile.career_goal }}"><br><br>
+    h2 {
+        color: var(--text-main);
+        font-weight: 800;
+    }
+
+    label {
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    input, textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 15px;
+        transition: 0.3s;
+    }
+
+    input:focus, textarea:focus {
+        border-color: #a78bfa;
+        box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+    }
+
+    /* Buttons */
+    .btn-gradient {
+        background: var(--primary-gradient);
+        border: none;
+        color: white;
+        padding: 12px;
+        border-radius: 14px;
+        font-weight: 700;
+        width: 100%;
+        transition: 0.3s;
+    }
+
+    .btn-gradient:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(244,114,182,0.3);
+    }
+
+    .btn-back {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: #7c3aed;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .btn-back:hover {
+        text-decoration: underline;
+    }
+
+    #success-msg {
+        display: none;
+        background: #d8b4fe;
+        color: #1e1b4b;
+        padding: 10px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        text-align: center;
+        font-weight: 600;
+    }
+</style>
+
+<div class="glass-card">
+
+    <!-- Back Button -->
+    <a href="{% url 'profile' %}" class="btn-back">← Back to Profile</a>
+
+    <h2 class="mb-3">Edit Profile</h2>
+
+    <div id="success-msg">✨ Profile Updated!</div>
+
+    <form id="profileForm" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <label>Profile Photo</label>
+        <input type="file" name="profile_picture">
+
+        <label>Career Goal</label>
+<input type="text" name="career_goal" value="{{ profile.career_goal }}">
+<div class="error-text" id="error-career_goal"></div>
 
 <label>Education</label>
-<input type="text" name="education" value="{{ profile.current_education }}"><br><br>
+<input type="text" name="education" value="{{ profile.current_education }}">
+<div class="error-text" id="error-education"></div>
 
 <label>University</label>
-<input type="text" name="university" value="{{ profile.university }}"><br><br>
+<input type="text" name="university" value="{{ profile.university }}">
+<div class="error-text" id="error-university"></div>
 
 <label>LinkedIn</label>
-<input type="url" name="linkedin" value="{{ profile.linkedin }}"><br><br>
+<input type="url" name="linkedin" value="{{ profile.linkedin }}">
+<div class="error-text" id="error-linkedin"></div>
 
 <label>GitHub</label>
-<input type="url" name="github" value="{{ profile.github }}"><br><br>
+<input type="url" name="github" value="{{ profile.github }}">
+<div class="error-text" id="error-github"></div>
 
 <label>Portfolio</label>
-<input type="url" name="portfolio" value="{{ profile.portfolio }}"><br><br>
+<input type="url" name="portfolio" value="{{ profile.portfolio }}">
+<div class="error-text" id="error-portfolio"></div>
 
-<label>Upload Resume</label>
-<input type="file" name="resume"><br><br>
+<label>Bio</label>
+<textarea name="bio">{{ profile.bio }}</textarea>
+<div class="error-text" id="error-bio"></div>
 
-<button type="submit">Save Profile</button>
+        <label>Upload Resume</label>
+        <input type="file" name="resume">
 
-</form>
+        <button type="submit" class="btn-gradient">Save Changes</button>
+    </form>
+</div>
+
+<script>
+document.getElementById("profileForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const form = this;
+    const formData = new FormData(form);
+
+    // clear old errors
+    document.querySelectorAll(".error-text").forEach(el => {
+        el.style.display = "none";
+        el.innerText = "";
+    });
+
+    document.querySelectorAll("input, textarea").forEach(el => {
+        el.classList.remove("input-error");
+    });
+
+    fetch("", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+        },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.status === "success") {
+            document.getElementById("success-msg").style.display = "block";
+
+            setTimeout(() => {
+                window.location.href = "{% url 'profile' %}";
+            }, 1500);
+        }
+
+        if (data.status === "error") {
+            // show errors
+            for (let field in data.errors) {
+                let input = document.querySelector(`[name=${field}]`);
+                let errorDiv = document.getElementById(`error-${field}`);
+
+                if (input) {
+                    input.classList.add("input-error");
+                }
+
+                if (errorDiv) {
+                    errorDiv.innerText = data.errors[field][0];
+                    errorDiv.style.display = "block";
+                }
+            }
+        }
+
+    })
+    .catch(err => console.log(err));
+});
+</script>
+
+{% endblock %}
