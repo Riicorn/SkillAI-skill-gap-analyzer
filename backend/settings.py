@@ -1,7 +1,15 @@
 # F:\SkillAI\backend\settings.py
+import os
 from pathlib import Path
+import dotenv 
+
+
+dotenv.load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+print("BASE DIR:", BASE_DIR)  # ✅ HERE is fine
+
 
 SECRET_KEY = 'django-insecure-pyz_fr6sno#u3-tuz24_e@kyp%#es6er-kap-q=huefg_+cu-0'
 DEBUG = True
@@ -48,7 +56,8 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'], 
+        'DIRS': [os.path.join(BASE_DIR, 'templates')], 
+        
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -98,23 +107,37 @@ CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8000"]
 
 # Allauth Settings
 # Email Settings
+# settings.py
+# --- EMAIL CONFIGURATION START ---
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+# Try this alternative if 587 keeps failing
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = 'team.skillai@gmail.com'
 
-EMAIL_HOST_USER = 'team.skillai@gmail.com'
-EMAIL_HOST_PASSWORD = 'qodi ubty gjkf ctok'
+# Allauth specific email settings
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+# --- EMAIL CONFIGURATION END ---
 
-DEFAULT_FROM_EMAIL = "SkillAI <team.skillai@gmail.com>"
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "[SkillAI] "
 ACCOUNT_LOGOUT_ON_GET = True
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = True
-ACCOUNT_AUTHENTICATION_METHOD = "username_email"
-ACCOUNT_EMAIL_VERIFICATION = "optional"
+
+ACCOUNT_LOGIN_METHODS = {"email", "username"}
+
+ACCOUNT_SIGNUP_FIELDS = [
+    "email*",
+    "username*",
+    "password1*",
+    "password2*",
+]
+
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
 SOCIALACCOUNT_PROVIDERS = {

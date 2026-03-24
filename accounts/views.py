@@ -6,6 +6,8 @@ import json
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from skills.utils import calculate_skill_gap
+from allauth.account.models import EmailAddress
+from allauth.account.adapter import get_adapter
 # 1️⃣ Landing Page
 def landing_page(request):
     if request.user.is_authenticated:
@@ -14,13 +16,27 @@ def landing_page(request):
 
 
 # 2️⃣ Signup
+# def signup_view(request):
+#     if request.method == 'POST':
+#         form = UserCreationForm(request.POST)
+#         if form.is_valid():
+#             user = form.save()
+#             login(request, user)
+#             return redirect('onboarding')
+#     else:
+#         form = UserCreationForm()
+
+#     return render(request, 'accounts/signup.html', {'form': form})
 def signup_view(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
-            return redirect('onboarding')
+
+            # 🔥 send email confirmation (new way)
+            get_adapter(request).send_confirmation_mail(request, user)
+
+            return redirect('account_email_verification_sent')
     else:
         form = UserCreationForm()
 
