@@ -21,7 +21,7 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Inter', sans-serif; background-color: var(--bg-soft);  overflow: hidden; }
+body { font-family: 'Inter', sans-serif; background-color: var(--bg-soft);   }
 
 .split-container {
     display: flex;
@@ -159,9 +159,17 @@ box-shadow: 0 0 0 4px rgba(167,139,250,0.2); }
     .side-left { display: none; }
     .side-right { border-radius: 0; }
 }
-
+.form-group {
+    overflow: visible;
+}
 .form-group div {
     font-weight:500;
+}
+.error-text {
+    font-size: 12px;
+    color: red;
+    margin-top: 6px;
+    display: block;
 }
 </style>
 </head>
@@ -257,11 +265,46 @@ box-shadow: 0 0 0 4px rgba(167,139,250,0.2); }
             </div>
         </div>
     </div>
-    <script>
-function togglePassword() {
-    const pass = document.getElementById("id_password");
-    pass.type = pass.type === "password" ? "text" : "password";
-}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const email = document.querySelector('input[type="email"]');
+    const password = document.querySelector('input[type="password"]');
+
+    // create error elements
+    const emailError = document.createElement("div");
+    emailError.className = "error-text";
+    email.parentNode.appendChild(emailError);
+
+    const passwordError = document.createElement("div");
+    passwordError.className = "error-text";
+    password.parentNode.appendChild(passwordError);
+
+    // EMAIL VALIDATION
+    email.addEventListener("input", () => {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!email.value.trim()) {
+            emailError.textContent = "Email is required";
+        } else if (!regex.test(email.value)) {
+            emailError.textContent = "Enter valid email";
+        } else {
+            emailError.textContent = "";
+        }
+    });
+
+    // PASSWORD VALIDATION
+    password.addEventListener("input", () => {
+        if (!password.value.trim()) {
+            passwordError.textContent = "Password required";
+        } else {
+            passwordError.textContent = "";
+        }
+    });
+
+});
+
+
 lucide.createIcons();
 </script>
 </body>

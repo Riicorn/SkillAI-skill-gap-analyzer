@@ -159,23 +159,29 @@ def dashboard_view(request):
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login
 
-def custom_login(request):
+from django.contrib.auth.forms import AuthenticationForm # Ensure this is imported
 
+def custom_login(request):
     if request.method == "POST":
+        # Pass the POST data to the form so it can generate error messages
+        form = AuthenticationForm(request, data=request.POST)
+        
         username = request.POST.get("username")
         password = request.POST.get("password")
-
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
             login(request, user)
-
             if user.is_superuser:
                 return redirect("/admin/")
-
             return redirect("/accounts/onboarding/")
+        else:
+            # If login fails, render the page again with the 'form' object containing errors
+            return render(request, "account/login.html", {"form": form})
 
-    return render(request, "account/login.html")
+    # For a GET request, provide an empty form
+    form = AuthenticationForm()
+    return render(request, "account/login.html", {"form": form})
 
     from django.contrib.auth.decorators import login_required
 from skills.models import UserSkill

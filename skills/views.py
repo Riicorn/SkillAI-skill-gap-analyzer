@@ -21,7 +21,6 @@ def landing(request):
 
 # My Skills page
 
-
 @login_required
 def skills_view(request):
     user_skills = UserSkill.objects.filter(user=request.user).select_related('skill')
@@ -34,20 +33,28 @@ def skills_view(request):
         if skill_name_str and level:
             skill_obj = Skill.objects.get(name=skill_name_str)
 
-            UserSkill.objects.update_or_create(
+            # 🔴 CHECK DUPLICATE
+            existing = UserSkill.objects.filter(
                 user=request.user,
-                skill=skill_obj,
-                defaults={'level': int(level)}
-            )
+                skill=skill_obj
+            ).exists()
 
-            messages.success(request, f"{skill_name_str} skill updated!")
+            if existing:
+                messages.error(request, f"{skill_name_str} already added!")
+            else:
+                UserSkill.objects.create(
+                    user=request.user,
+                    skill=skill_obj,
+                    level=int(level)
+                )
+                messages.success(request, f"{skill_name_str} added successfully!")
+
             return redirect('skills')
 
     return render(request, "skills/skills.html", {
         "skills": user_skills,
         "all_skills": all_skills
     })
-
 # Skill Gap page
 @login_required
 def skill_gap_view(request):

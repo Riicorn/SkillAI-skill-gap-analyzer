@@ -4,6 +4,9 @@ from django.http import JsonResponse
 from django.utils import timezone
 from skills.models import LearningResource, LearningProgress, UserSkill
 from .models import UserAchievement
+from django.views.decorators.http import require_POST
+from .services import toggle_save_resource, toggle_complete_resource
+from .models import SavedResource
 
 from skills.models import (
     UserSkill,
@@ -205,15 +208,70 @@ def complete_resource(request, resource_id):
 
     return redirect("learning_path")
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from skills.models import LearningResource, LearningProgress
+
 @login_required
 def courses_view(request):
+    resources = LearningResource.objects.all().order_by('skill__name')
 
-    resources = LearningResource.objects.all()
+    progress_qs = LearningProgress.objects.filter(user=request.user)
+
+    progress_map = {p.resource.id: p for p in progress_qs}
+
+    total = resources.count()
+    completed = progress_qs.filter(completed=True).count()
+
+    progress_percent = int((completed / total) * 100) if total > 0 else 0
+    saved_resources = set(
+        SavedResource.objects.filter(user=request.user)
+        .values_list("resource_id", flat=True)
+    )
 
     return render(request, "recommendations/courses.html", {
-        "resources": resources
+        "resources": resources,
+        "progress_map": progress_map,
+        "progress_percent": progress_percent,
+        "saved_resources": saved_resources   # ✅ IMPORTANT
     })
 
+
+
+# recommendations/views.py
+
+# recommendations/views.py
+
+
+
+
+@login_required
+@require_POST
+def toggle_save(request):
+    rid = request.POST.get("id")
+    resource = get_object_or_404(LearningResource, id=rid)
+
+    obj, created = SavedResource.objects.get_or_create(
+        user=request.user,
+        resource=resource
+    )
+
+    if not created:
+        obj.delete()
+        return JsonResponse({"saved": False})
+
+    return JsonResponse({"saved": True})
+
+
+@login_required
+@require_POST
+def toggle_complete(request):
+    rid = request.POST.get("id")
+    resource = get_object_or_404(LearningResource, id=rid)
+
+    completed = toggle_complete_resource(request.user, resource)
+
+    return JsonResponse({"completed": completed})
 from skills.models import LearningProgress, UserSkill
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
@@ -280,4 +338,21 @@ def claim_badge(request, badge_id):
         return JsonResponse({"status": "success"})
 
     return JsonResponse({"status": "invalid"})
+from .models import Review
 
+@login_required
+def add_review(request, resource_id):
+    if request.method == "POST":
+        resource = get_object_or_404(LearningResource, id=resource_id)
+
+        text = request.POST.get("text")
+        rating = request.POST.get("rating")
+
+        Review.objects.create(
+            user=request.user,
+            resource=resource,
+            text=text,
+            rating=rating
+        )
+
+    return redirect("courses")

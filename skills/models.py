@@ -120,13 +120,25 @@ class LearningResource(models.Model):
 
 from django.contrib.auth.models import User
 
+from django.utils import timezone
+
 class LearningProgress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     skill = models.ForeignKey('Skill', on_delete=models.CASCADE)
     resource = models.ForeignKey('LearningResource', on_delete=models.CASCADE)
 
     completed = models.BooleanField(default=False)
+    saved = models.BooleanField(default=False)  # 🔥 ADD THIS
+
     completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('user', 'resource')  # 🔥 IMPORTANT
+
+    def mark_completed(self):
+        self.completed = True
+        self.completed_at = timezone.now()
+        self.save()
 
     def __str__(self):
         return f"{self.user} - {self.skill.name}"

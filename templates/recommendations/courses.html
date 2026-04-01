@@ -1,111 +1,467 @@
 {% extends "base.html" %}
-
+{% load custom_tags %}
+{% load static %}
 {% block content %}
+
 <style>
-    :root {
-        --primary-gradient: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
-        --bg-soft-pink: #fdf2f8;
-        --text-main: #1e1b4b;
-        --text-muted: #64748b;
-        --glass-bg: rgba(255, 255, 255, 0.7);
-    }
 
-    body {
-        background-color: var(--bg-soft-pink);
-        color: var(--text-main);
-    }
+/* PAGE */
+.page-title{
+font-weight:700;
+color:#4c1d95;
+margin-bottom:8px;
+}
 
-    .ai-card {
-        background: var(--glass-bg);
-        backdrop-filter: blur(10px);
-        border: 1px solid #e2e8f0;
-        border-radius: 16px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
+.sub-text{
+color:#6b7280;
+font-size:14px;
+margin-bottom:20px;
+}
 
-    .ai-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(167, 139, 250, 0.15);
-    }
+/* PROGRESS CARD */
+.progress-container{
+background:white;
+padding:20px;
+border-radius:18px;
+box-shadow:0 10px 25px rgba(0,0,0,0.05);
+margin-bottom:25px;
+position:relative;
+overflow:hidden;
+}
 
-    .gradient-text {
-        background: var(--primary-gradient);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 800;
-    }
+.progress-container::before{
+content:"";
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:linear-gradient(135deg,#a78bfa20,#f472b620);
+opacity:0.6;
+}
 
-    .badge-ai {
-        background: #f1f5f9;
-        color: #6366f1;
-        border-radius: 8px;
-        padding: 5px 12px;
-        font-weight: 600;
-        font-size: 0.75rem;
-    }
+.progress-bar{
+height:14px;
+border-radius:999px;
+border-radius:20px;
+background:#eee;
+overflow:hidden;
+}
 
-    .btn-ai {
-        background: var(--primary-gradient);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        padding: 10px 20px;
-        font-weight: 600;
-        transition: opacity 0.2s;
-    }
+.progress-fill{
+height:100%;
+background:linear-gradient(135deg,#a78bfa,#f472b6);
+transition:width 0.6s ease;
+}
 
-    .btn-ai:hover {
-        opacity: 0.9;
-        color: white;
-    }
+/* SECTION */
+.section-title{
+font-weight:600;
+margin:25px 0 10px;
+color:#1e1b4b;
+}
 
-    .price-tag {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        font-weight: 700;
-    }
+/* COURSE ROW */
+.course-row{
+display:flex;
+gap:18px;
+overflow-x:auto;
+padding-bottom:12px;
+scroll-behavior:smooth;
+}
+
+.course-row::-webkit-scrollbar{
+height:6px;
+}
+.course-row::-webkit-scrollbar-thumb{
+background:#ddd;
+border-radius:10px;
+}
+
+/* CARD */
+.course-card{
+min-width:280px;
+background:white;
+border-radius:20px;
+padding:18px;
+box-shadow:0 12px 30px rgba(0,0,0,0.06);
+transition:.3s;
+position:relative;
+overflow:hidden;
+}
+
+.course-card::after{
+content:"";
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:linear-gradient(135deg,#a78bfa10,#f472b610);
+opacity:0;
+transition:.3s;
+}
+
+.course-card:hover{
+transform:translateY(-6px) scale(1.02);
+}
+
+.course-card:hover::after{
+opacity:1;
+}
+
+/* COMPLETED */
+.course-card.completed{
+background:#f3f4f6;
+opacity:0.95;
+}
+
+/* TITLE */
+.course-card h5{
+font-weight:600;
+color:#111827;
+margin-bottom:6px;
+}
+
+/* TYPE */
+.course-card p{
+font-size:13px;
+color:#6b7280;
+margin-bottom:8px;
+}
+
+/* BADGE */
+.free-badge{
+display:inline-block;
+background:#dcfce7;
+color:#15803d;
+padding:3px 8px;
+border-radius:10px;
+font-size:12px;
+font-weight:500;
+margin-top:4px;
+}
+
+/* BUTTON GROUP */
+.btn-group{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+margin-top:10px;
+}
+
+/* BUTTON BASE */
+.btn{
+border:none;
+border-radius:10px;
+padding:6px 12px;
+font-size:13px;
+font-weight:500;
+cursor:pointer;
+transition:0.2s;
+}
+
+/* COMPLETE */
+.btn-complete{
+background:linear-gradient(135deg,#22c55e,#4ade80);
+color:white;
+}
+
+.btn-complete:hover{
+transform:scale(1.05);
+}
+
+/* SAVE */
+.btn-save{
+background:#fbcfe8;
+color:#1e1b4b;
+}
+
+.btn-save:hover{
+background:linear-gradient(135deg,#a78bfa,#f472b6);
+box-shadow:0 4px 12px rgba(244,114,182,0.3);
+color:white;
+}
+
+/* REMOVE */
+.btn-remove{
+background:#ef4444;
+color:white;
+}
+
+/* LINK */
+.open-link{
+display:inline-block;
+margin-top:12px;
+font-size:13px;
+color:#6366f1;
+font-weight:500;
+text-decoration:none;
+margin-left:10px;
+}
+
+.open-link:hover{
+text-decoration:underline;
+}
+
+/* REVIEW */
+textarea{
+width:100%;
+border-radius:12px;
+border:1px solid #ddd;
+padding:10px;
+margin-top:10px;
+font-size:13px;
+}
+
+select{
+border-radius:8px;
+padding:5px;
+margin-top:8px;
+}
+
+/* EMPTY FEEL */
+.empty-state{
+text-align:center;
+padding:40px;
+color:#6b7280;
+}
+.course-card::after{
+pointer-events:none;
+}
+.course-card *{
+position:relative;
+z-index:2;
+}
+.section-box{
+background:white;
+border-radius:20px;
+padding:20px;
+box-shadow:0 10px 25px rgba(0,0,0,0.05);
+margin-bottom:25px;
+}
+
+.section-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:15px;
+}
+
+.section-header h3{
+margin:0;
+font-weight:600;
+color:#1e1b4b;
+display:flex;
+align-items:center;
+gap:8px;
+}
+
+.section-header span{
+font-size:12px;
+color:#6b7280;
+}
+
+.section-header i{
+color:#6366f1;
+font-size:19px;
+position:relative;
+top:-1px;
+}
+
+.section-title i{
+color:#f97316;
+}
+.btn i{
+font-size:12px;
+}
+
+.btn:active{
+transform:scale(0.95);
+}
 </style>
 
-<div class="container py-5">
-    <div class="d-flex align-items-center mb-5">
-        <h2 class="fw-bold" style="color:#4c1d95;">Recommended Courses</h2>
-    </div>
+<h2 class="page-title">Your Learning Space</h2>
+<p class="sub-text">Track, save and complete your courses smoothly 🚀</p>
 
-    <div class="row">
-        {% for resource in resources %}
-        <div class="col-md-4 mb-4">
-            <div class="card ai-card h-100 p-3">
-                <div class="card-body d-flex flex-column">
-                    
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <span class="badge-ai text-uppercase">{{ resource.resource_type }}</span>
-                        {% if resource.is_free %}
-                            <span class="price-tag" style="color: #f472b6;">✦ Free</span>
+<!-- Progress -->
+<div class="progress-container">
+    <div class="progress-bar">
+        <div class="progress-fill" style="width: {{progress_percent}}%"></div>
+    </div>
+    <p><strong>{{progress_percent}}%</strong> Completed - keep going 🔥</p>
+</div>
+<div class="section-box">
+
+<div class="section-header">
+<h3><i class="fa fa-bookmark me-2"></i>Saved Courses</h3>
+<span>{{ saved_resources|length }} items</span>
+</div>
+
+<div class="course-row">
+{% for r in resources %}
+    {% if r.id in saved_resources %}
+    <div class="course-card">
+        <h5>{{ r.title }}</h5>
+        <p>{{ r.resource_type }}</p>
+
+        <button class="btn btn-save" onclick="saveCourse({{r.id}})">
+    <i class="fa fa-trash me-1"></i>Remove
+</button>
+        <a href="{{r.link}}" target="_blank" class="open-link">Open →</a>
+    </div>
+    {% endif %}
+{% empty %}
+<p class="empty-state">No saved courses yet 💾</p>
+{% endfor %}
+</div>
+
+</div>
+<!-- GROUP BY SKILL -->
+<div class="section-box">
+
+<div class="section-header">
+<h3><i class="fa fa-graduation-cap me-2"></i>Continue Learning</h3>
+<span>Pick up where you left off</span>
+</div>
+
+{% regroup resources by skill as skill_list %}
+
+{% for group in skill_list %}
+    <div class="section-title"><i class="fa fa-fire text-danger me-1"></i> {{ group.grouper.name }}</div>
+
+    <div class="course-row">
+        {% for r in group.list %}
+            {% with progress_map|get_item:r.id as prog %}
+                {% if not prog or not prog.completed %}
+                <div class="course-card">
+
+                    <h5>{{ r.title }}</h5>
+                    <p>{{ r.resource_type }}</p>
+
+                    {% if r.is_free %}
+                        <span class="free-badge">Free</span>
+                    {% endif %}
+
+                    <div class="btn-group">
+                        <button class="btn btn-complete" onclick="completeCourse({{r.id}})">
+                            <i class="fa fa-check me-1"></i>Complete
+                        </button>
+
+                        {% if r.id in saved_resources %}
+                            <button class="btn btn-save" onclick="saveCourse({{r.id}})">
+                                <i class="fa fa-bookmark me-1"></i>Saved
+                            </button>
                         {% else %}
-                            <span class="price-tag" style="color: #64748b;">Paid</span>
+                            <button class="btn btn-save" onclick="saveCourse({{r.id}})">
+                                <i class="fa fa-bookmark me-1"></i>Save
+                            </button>
                         {% endif %}
                     </div>
 
-                    <h5 class="card-title fw-bold" style="color: #1e1b4b;">{{ resource.title }}</h5>
-                    
-                    <p class="small mb-4" style="color: var(--text-muted);">
-                        <i class="bi bi-cpu-fill me-1"></i> Focus: <strong>{{ resource.skill.name }}</strong>
-                    </p>
+                    <a href="{{r.link}}" target="_blank" class="open-link">Open →</a>
 
-                    <div class="mt-auto">
-                        <a href="{{ resource.link }}" target="_blank" class="btn btn-ai w-100">
-                            Start Learning
-                        </a>
-                    </div>
                 </div>
-            </div>
-        </div>
-        {% empty %}
-        <div class="col-12 text-center py-5">
-            <p style="color: var(--text-muted);">No learning resources available yet.</p>
-        </div>
+                {% endif %}
+            {% endwith %}
         {% endfor %}
     </div>
+
+{% endfor %}
+
 </div>
+
+<!-- COMPLETED SECTION -->
+ <div class="section-box">
+
+<div class="section-header">
+<h3><i class="fa fa-check-circle me-2"></i>Completed Courses</h3>
+<span>Great job 🎉</span>
+</div>
+
+<div class="course-row">
+{% for r in resources %}
+    {% with progress_map|get_item:r.id as prog %}
+        {% if prog and prog.completed %}
+        <div class="course-card completed">
+
+            <h5>{{ r.title }}</h5>
+            <p style="color:#22c55e;">Completed ✔</p>
+
+            <button class="btn btn-remove" onclick="removeCourse({{r.id}})">
+    <i class="fa fa-times me-1"></i>Remove
+</button>
+
+            <form method="POST" action="{% url 'add_review' r.id %}">
+                {% csrf_token %}
+                <textarea name="text" placeholder="Write review..."></textarea>
+
+                <select name="rating">
+                    <option value="1">⭐</option>
+                    <option value="2">⭐⭐</option>
+                    <option value="3">⭐⭐⭐</option>
+                    <option value="4">⭐⭐⭐⭐</option>
+                    <option value="5">⭐⭐⭐⭐⭐</option>
+                </select>
+
+                <button type="submit">Submit</button>
+            </form>
+
+        </div>
+        {% endif %}
+    {% endwith %}
+{% empty %}
+<p class="empty-state">No completed courses yet 🎯</p>
+{% endfor %}
+</div>
+
+</div>
+
+<!-- JS -->
+<script>
+function completeCourse(id){
+    fetch("{% url 'toggle_complete' %}", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{csrf_token}}",
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "id=" + id
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.completed){
+            location.reload();  // ✅ easiest + correct
+        }
+    })
+}
+
+function saveCourse(id){
+    fetch("{% url 'toggle_save' %}", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{csrf_token}}",
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "id=" + id
+    })
+    .then(res => res.json())
+    .then(data => {
+        location.reload();   // ✅ IMPORTANT
+    })
+}
+
+function removeCourse(id){
+    fetch("{% url 'toggle_complete' %}", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{csrf_token}}",
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "id=" + id
+    })
+    .then(() => location.reload());
+}
+</script>
+
 {% endblock %}
