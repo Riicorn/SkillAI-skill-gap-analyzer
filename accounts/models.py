@@ -1,10 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from skills.models import JobRole  
 
-
-# =========================================
-# 1️⃣ User Profile (Core Professional Model)
-# =========================================
 class UserProfile(models.Model):
 
     EXPERIENCE_CHOICES = [
@@ -19,19 +16,18 @@ class UserProfile(models.Model):
         related_name="profile"
     )
 
-    profile_picture = models.ImageField(
-        upload_to='profile_pictures/',
-        blank=True,
-        null=True
+    # 🎯 NEW FIELD (MAIN FIX)
+    target_role = models.ForeignKey(
+        JobRole,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
     )
 
+    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
     bio = models.TextField(blank=True)
 
-    career_goal = models.CharField(
-        max_length=200,
-        blank=True,
-        help_text="Target role (e.g., AI Engineer)"
-    )
+    career_goal = models.CharField(max_length=200, blank=True)
 
     experience_level = models.CharField(
         max_length=50,
@@ -46,14 +42,10 @@ class UserProfile(models.Model):
     github = models.URLField(blank=True)
     portfolio = models.URLField(blank=True)
 
-    resume = models.FileField(
-        upload_to='resumes/',
-        blank=True,
-        null=True
-    )
+    resume = models.FileField(upload_to='resumes/', blank=True, null=True)
 
-    skill_score = models.FloatField(default=0.0)  # Calculated overall score
-    profile_completion = models.IntegerField(default=0)  # 0–100%
+    skill_score = models.FloatField(default=0.0)
+    profile_completion = models.IntegerField(default=0)
 
     is_verified = models.BooleanField(default=False)
 

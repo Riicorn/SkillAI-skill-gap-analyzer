@@ -1,456 +1,330 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<!-- Custom Styles for Premium UI -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <style>
-    :root {
-        --primary-gradient: linear-gradient(135deg, #a78bfa, #f472b6);
-        --bg-glass: rgba(255, 255, 255, 0.7);
-        --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-        --text-main: #1e1b4b;
-        --text-muted: #64748b;
-    }
-
-    body {
-        background-color: #fdf2f8; 
-        font-family: 'Inter', sans-serif;
-        color: var(--text-main);
-    }
-
-    /* Glassmorphism Cards */
-    .glass-card {
-        background: white;
-        border-radius: 24px;
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        box-shadow: var(--card-shadow);
-        backdrop-filter: blur(10px);
-        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        overflow: hidden;
-    }
-
-    .glass-card:hover{
-transform: translateY(-6px);
-box-shadow: 0 12px 30px rgba(0,0,0,0.08);
-}
-    /* Metrics & Badges */
-    .level-badge-premium {
-        background: var(--primary-gradient);
-        color: white;
-        padding: 8px 20px;
-        border-radius: 50px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        box-shadow: 0 4px 15px rgba(167, 139, 250, 0.4);
-        display: inline-block;
-        position: relative;
-        overflow: hidden;
-    }
-
-    /* Shining Glow Effect */
-    .level-badge-premium::after {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
-        transform: rotate(45deg);
-        animation: shine-effect 3s infinite;
-    }
-
-    @keyframes shine-effect {
-        0% { left: -100%; }
-        100% { left: 100%; }
-    }
-
-    .floating-accent {
-        position: absolute;
-        width: 100px;
-        height: 100px;
-        background: linear-gradient(45deg, #d8b4fe, #fbcfe8);
-        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-        filter: blur(40px);
-        z-index: -1;
-        opacity: 0.6;
-    }
-
-    .progress-ring-container {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .progress-ring-text {
-        position: absolute;
-        font-weight: 800;
-        font-size: 1.5rem;
-        color: #7c3aed;
-    }
-
-    .metric-value {
-        font-size: 2rem;
-        font-weight: 800;
-        background: var(--primary-gradient);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .ai-gradient-box {
-        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-        color: white;
-        border-radius: 24px;
-        padding: 24px;
-        position: relative;
-    }
-
-    .ai-avatar-glow {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        width: 60px;
-        height: 60px;
-        background: rgba(167, 139, 250, 0.2);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid rgba(255,255,255,0.1);
-    }
-        .ai-gradient-box ul{
-        list-style:none;
-        padding-left:0;
-        }
-
-        .ai-gradient-box li{
-        margin-bottom:6px;
-        }
-        .ai-gradient-box ul li{
-padding:4px 0;
-}
-.ai-gradient-box{
-background: linear-gradient(135deg,#312e81,#6366f1);
+:root {
+    --primary-gradient: linear-gradient(135deg, #a78bfa, #f472b6);
+    --ai-gradient: linear-gradient(135deg, #312e81, #6366f1);
 }
 
-.row.g-4{
-margin-bottom:20px;
+/* ===== CARD & LAYOUT ===== */
+.glass-card {
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.02);
+}
+.glass-card:hover { 
+    transform: translateY(-4px); 
+    box-shadow: 0 15px 30px rgba(0,0,0,0.08);
 }
 
-.right-panel{
-display:flex;
-flex-direction:column;
-gap:20px;
+/* ===== SKILLS ===== */
+.skill-pill {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+}
+
+/* ===== METRICS ===== */
+.metric-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.metric-icon {
+    font-size: 1.2rem;
+    color: #94a3b8;
+    margin-bottom: 8px;
+}
+
+/* ===== AI BOX ===== */
+.ai-box {
+    background: var(--ai-gradient);
+    color: white;
+    border-radius: 18px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+}
+.ai-box::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+}
+
+.ai-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ===== TITLES ===== */
+.chart-title {
+    font-weight: 700;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.chart-sub {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 15px;
+}
+
+.btn-main {
+    background: white;
+    color: #4f46e5;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 13px;
+    transition: 0.2s;
+}
+.btn-main:hover {
+    background: #f8fafc;
+    transform: scale(1.02);
+}
+
+canvas { max-height: 220px !important; }
+
+/* Pulse Animation for AI */
+.pulse-ai {
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
 }
 </style>
 
-<div class="mb-4">
-<h2 class="fw-bold" style="color:#4c1d95;">
-Dashboard
-</h2>
-<p class="text-muted mb-0">
-Your skill progress and learning insights
-</p>
-</div>
-<div class="glass-card p-4 mb-4">
+<div class="container-fluid py-4">
 
-<h5 class="fw-bold mb-3">Your Skills</h5>
-
-<div class="d-flex flex-wrap gap-2">
-
-{% for skill in skills %}
-<span class="badge px-3 py-2 rounded-pill"
-style="background:linear-gradient(135deg,#a78bfa,#f472b6);color:white;font-weight:600;">
-{{ skill.skill.name }} • L{{ skill.level }}
-</span>
-{% empty %}
-<span class="text-muted">No skills selected yet</span>
-{% endfor %}
-
+    <div>
+<h2 class="fw-bold" style="color:#4c1d95;">Dashboard</h2>
+<span class="text-muted small"><i class="fa-regular fa-calendar me-1"></i> Updated just now</span>
 </div>
 
-</div>
-
-    <!-- Main Grid -->
-    <div class="row g-4">
         
-        <div class="col-xl-8">
-            <div class="row g-4">
-                
-                <!-- Match Score Circular Card -->
+
+    <div class="glass-card p-3 mb-4">
+        <div class="d-flex flex-wrap gap-2">
+            {% for skill in skills %}
+            <span class="skill-pill">
+                <i class="fa-solid fa-bolt-lightning"></i>
+                {{ skill.skill.name }} • L{{ skill.level }}
+            </span>
+            {% empty %}
+            <span class="text-muted small"><i class="fa-solid fa-circle-info me-1"></i> No skills added yet</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-lg-8">
+            <div class="row g-3">
+
                 <div class="col-md-4">
-                    <div class="glass-card p-4 text-center h-100 d-flex flex-column align-items-center justify-content-center">
-                        <div class="progress-ring-container mb-3">
-                            <svg width="140" height="140">
-                                <circle cx="70" cy="70" r="60" stroke="#f1f5f9" stroke-width="12" fill="none"/>
-                                <circle id="match-circle" cx="70" cy="70" r="60"
-                                    stroke="url(#purpleGradient)"
-                                    stroke-width="12"
-                                    fill="none"
-                                    stroke-linecap="round"
-                                    stroke-dasharray="377"
-                                    stroke-dashoffset="377"
-                                    style="transition: stroke-dashoffset 2s ease-out;">
-                                </circle>
+                    <div class="glass-card text-center p-4">
+                        <div class="position-relative d-inline-block">
+                            <svg width="100" height="100">
+                                <circle cx="50" cy="50" r="40" stroke="#f1f5f9" stroke-width="8" fill="none"/>
+                                <circle id="circle" cx="50" cy="50" r="40"
+                                    stroke="url(#grad)" stroke-width="8"
+                                    fill="none" stroke-linecap="round"
+                                    stroke-dasharray="251"
+                                    stroke-dashoffset="251"
+                                    style="transition: stroke-dashoffset 1s ease-in-out;"/>
                                 <defs>
-                                    <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                        <stop offset="0%" style="stop-color:#a78bfa;stop-opacity:1" />
-                                        <stop offset="100%" style="stop-color:#f472b6;stop-opacity:1" />
+                                    <linearGradient id="grad">
+                                        <stop offset="0%" stop-color="#a78bfa"/>
+                                        <stop offset="100%" stop-color="#f472b6"/>
                                     </linearGradient>
                                 </defs>
                             </svg>
-                            <div class="progress-ring-text">{{ job_match_score|default:0 }}%</div>
+                            <div class="position-absolute top-50 start-50 translate-middle">
+                                <i class="fa-solid fa-award text-primary" style="opacity: 0.2; font-size: 2rem;"></i>
+                            </div>
                         </div>
-                        <h6 class="fw-bold text-muted mb-0">Job Match Score</h6>
-                        <small class="text-success mt-1"><i class="fas fa-arrow-up"></i> 5% from last week</small>
+                        <div class="mt-2">
+                            <div style="font-size:24px;font-weight:800;">{{ avg_proficiency }}%</div>
+                            <small class="text-muted fw-bold text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Overall Score</small>
+                        </div>
                     </div>
                 </div>
 
                 <div class="col-md-8">
-                    <div class="row g-3 h-100">
+                    <div class="row g-3">
                         <div class="col-6">
-                            <div class="glass-card p-4 h-100">
-                                <div class="d-flex align-items-center gap-3 mb-2">
-                                    <div class="p-2 rounded-circle bg-light text-primary"><i class="fas fa-brain"></i></div>
-                                    <span class="text-muted small fw-bold">Active Skills</span>
-                                </div>
-                                <div class="metric-value">{{ total_skills|default:0 }}</div>
+                            <div class="glass-card p-3 text-center">
+                                <div class="metric-icon"><i class="fa-solid fa-layer-group"></i></div>
+                                <small class="text-muted d-block mb-1">Total Skills</small>
+                                <div class="metric-value">{{ total_skills }}</div>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="glass-card p-4 h-100">
-                                <div class="d-flex align-items-center gap-3 mb-2">
-                                    <div class="p-2 rounded-circle bg-light text-success"><i class="fas fa-bolt"></i></div>
-                                    <span class="text-muted small fw-bold">Proficiency</span>
-                                </div>
-                                <div class="metric-value">{{ avg_proficiency|default:0 }}%</div>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="glass-card p-4">
-                                <h6 class="fw-bold mb-3">Skill Gap comparison</h6>
-                                <div style="height: 180px;">
-                                    <canvas id="gapBarChart"></canvas>
-                                </div>
+                            <div class="glass-card p-3 text-center">
+                                <div class="metric-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                                <small class="text-muted d-block mb-1">Avg Level</small>
+                                <div class="metric-value">{{ avg_proficiency }}%</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-lg-12">
+                <div class="col-12">
                     <div class="glass-card p-4">
-                        <h5 class="fw-bold mb-4">Radar Chart: Current vs Required Skills</h5>
-                        <div style="height: 400px; display: flex; justify-content: center;">
-                            <canvas id="skillsRadarChart"></canvas>
-                        </div>
+                        <div class="chart-title"><i class="fa-solid fa- screwdriver-wrench text-secondary"></i> Skill Gap Analysis</div>
+                        <div class="chart-sub">Percentage remaining to reach 100% mastery</div>
+                        <canvas id="barChart"></canvas>
                     </div>
                 </div>
 
-                <div class="col-lg-12">
+                <div class="col-12">
                     <div class="glass-card p-4">
-                        <h5 class="fw-bold mb-4">Learning Progress Over Time</h5>
-                        <div style="height: 250px;">
-                            <canvas id="progressLineChart"></canvas>
-                        </div>
+                        <div class="chart-title"><i class="fa-solid fa-compass text-info"></i> Skill Radar</div>
+                        <div class="chart-sub">Visualizing your expertise balance</div>
+                        <canvas id="radarChart"></canvas>
                     </div>
                 </div>
+
             </div>
         </div>
 
-        <div class="col-xl-4">
-            <div class="right-panel">
-                <div class="ai-gradient-box shadow-lg">
+        <div class="col-lg-4">
 
-<h5 class="fw-bold mb-3">AI Skill Advisor</h5>
+            <div class="ai-box mb-4 shadow-sm">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h6 class="fw-bold m-0"><i class="fa-solid fa-wand-magic-sparkles me-2 pulse-ai"></i>AI Insights</h6>
+                    <span class="ai-badge">Beta</span>
+                </div>
 
-<div class="mb-3">
-<span class="small text-white-50">TARGET ROLE</span>
-<div class="badge bg-white text-primary px-3 py-2 rounded-pill">
-{% if target_role %}
-    {{ target_role.title }}
-{% else %}
-    <span class="text-muted">No role selected</span>
-{% endif %}
-</div>
-</div>
+                <div class="mb-3">
+                    <div class="small opacity-75">Current Standing</div>
+                    <div class="fw-bold">{{ level }} Rank</div>
+                </div>
 
-<div class="mb-3">
-<span class="small text-white-50">SKILL GAPS</span>
+                <p class="small mb-4" style="line-height: 1.6; opacity: 0.9;">
+                    You are performing in the top <b>{{ avg_proficiency }}%</b> of users in your category. Focus on consistency to unlock advanced certifications.
+                </p>
 
-{% if missing_skills %}
-<ul class="small mt-2 mb-0">
-{% for skill in missing_skills %}
-<li>⚠ {{ skill }}</li>
-{% endfor %}
-</ul>
-{% else %}
-<p class="small mt-2 mb-0">You're covering most required skills 🎉</p>
-{% endif %}
+                <a href="{% url 'learning_path' %}" class="btn-main w-100 shadow-sm text-center d-block text-decoration-none" onclick="this.innerHTML='<i class=&quot;fa-solid fa-spinner fa-spin me-2&quot;></i>Mapping Route...';">
+        <i class="fa-solid fa-route me-2"></i>Generate Path
+    </a>
+            </div>
 
-</div>
+            <div class="glass-card p-4 mb-4">
+                <h6 class="fw-bold mb-3 d-flex align-items-center">
+                    <i class="fa-solid fa-star text-warning me-2"></i> Top Performed
+                </h6>
 
-<div class="mb-4">
-<span class="small text-white-50">NEXT LEARNING STEPS</span>
-
-<ul class="small mt-2 mb-0">
-{% for skill in missing_skills|slice:":3" %}
-<li>📘 Learn {{ skill }}</li>
-{% endfor %}
-</ul>
-
-</div>
-
-<a href="{% url 'learning_path' %}"
-class="btn btn-light w-100 rounded-4 fw-bold text-primary">
-Generate Learning Path
-</a>
-
-</div>
-
-                <div class="glass-card p-4">
-                    <h6 class="fw-bold mb-4 text-center">Skill Category Distribution</h6>
-                    <div style="height: 200px;">
-                        <canvas id="categoryDoughnutChart"></canvas>
+                {% for skill in skills|slice:":3" %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="fw-medium">{{ skill.skill.name }}</span>
+                        <span class="text-primary fw-bold">L{{ skill.level }}</span>
+                    </div>
+                    <div class="progress" style="height:6px; background: #f1f5f9;">
+                        <div class="progress-bar bg-primary" 
+                             style="width: {{ skill.level|floatformat:0|add:"0" }}0%; border-radius: 10px;">
+                        </div>
                     </div>
                 </div>
+                {% endfor %}
             </div>
-        </div>
 
+            <div class="glass-card p-4 text-center">
+                <h6 class="fw-bold mb-3 text-start"><i class="fa-solid fa-chart-donut me-2"></i>Distribution</h6>
+                <canvas id="doughnutChart"></canvas>
+            </div>
+
+        </div>
     </div>
 </div>
 
-<!-- Chart.js and Confetti -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+const labels = {{ skill_labels|safe }};
+const data = {{ skill_data|safe }};
+const score = {{ avg_proficiency|default:0 }};
 
-    // Direct JSON from Django (NO parsing hacks)
-    const skillLabels = {{ skill_labels|safe }};
-    const skillData = {{ skill_data|safe }};
-    const jobMatchScore = {{ job_match_score|default:0 }};
+// Circle animation
+const circle = document.getElementById("circle");
+const offset = 251 - (251 * score)/100;
+setTimeout(()=>{ circle.style.strokeDashoffset = offset; }, 300);
 
-    Chart.defaults.font.family = "'Inter', sans-serif";
-    Chart.defaults.color = "#64748b";
+// Global Chart Defaults
+Chart.defaults.font.family = "'Plus Jakarta Sans', 'Inter', sans-serif";
+Chart.defaults.color = '#64748b';
 
-    // 1. Radar Chart
-    if (skillLabels.length > 0) {
-        const ctxRadar = document.getElementById('skillsRadarChart').getContext('2d');
+// Bar Chart
+new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: "Gap %",
+            data: data.map(v => 100 - v),
+            backgroundColor: "#f472b6",
+            borderRadius: 6
+        }]
+    },
+    options: { plugins: { legend: { display: false } } }
+});
 
-        new Chart(ctxRadar, {
-            type: 'radar',
-            data: {
-                labels: skillLabels,
-                datasets: [{
-                    label: 'Current Proficiency',
-                    data: skillData,
-                    fill: true,
-                    backgroundColor: 'rgba(167, 139, 250, 0.2)',
-                    borderColor: '#a78bfa',
-                    pointBackgroundColor: '#a78bfa',
-                    borderWidth: 3
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                scales: {
-                    r: {
-                        suggestedMin: 0,
-                        suggestedMax: 100
-                    }
-                }
-            }
-        });
-    }
+// Radar Chart
+new Chart(document.getElementById('radarChart'), {
+    type: 'radar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: "Skill Level",
+            data: data,
+            backgroundColor: "rgba(167, 139, 250, 0.2)",
+            borderColor: "#a78bfa",
+            pointBackgroundColor: "#a78bfa"
+        }]
+    },
+    options: { scales: { r: { beginAtZero: true, max: 100 } } }
+});
 
-    // 2. Bar Chart (static example)
-    const ctxBar = document.getElementById('gapBarChart').getContext('2d');
-    new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-            labels: skillLabels,
-            datasets: [{
-                label: 'Skill Gap',
-                data: skillData.map(v => 100 - v),
-                backgroundColor: '#a78bfa',
-                borderRadius: 10
-            }]
-        },
-        options: {
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } }
-        }
-    });
-
-    // 3. Line Chart (demo progression)
-    const ctxLine = document.getElementById('progressLineChart').getContext('2d');
-    new Chart(ctxLine, {
-        type: 'line',
-        data: {
-            labels: skillLabels,
-            datasets: [{
-                data: skillData,
-                borderColor: '#7c3aed',
-                tension: 0.4,
-                fill: true,
-                backgroundColor: 'rgba(124, 58, 237, 0.1)'
-            }]
-        },
-        options: {
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } }
-        }
-    });
-
-    // 4. Doughnut Chart
-    const ctxDoughnut = document.getElementById('categoryDoughnutChart').getContext('2d');
-    new Chart(ctxDoughnut, {
-        type: 'doughnut',
-        data: {
-            labels: skillLabels,
-            datasets: [{
-                data: skillData,
-                backgroundColor: [
-                    '#a78bfa',
-                    '#f472b6',
-                    '#312e81',
-                    '#6366f1',
-                    '#ec4899'
-                ],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            maintainAspectRatio: false,
-            cutout: '75%',
-            plugins: { legend: { display: false } }
-        }
-    });
-
-    // Progress Ring Animation
-    const circle = document.getElementById("match-circle");
-    if (circle) {
-        const radius = 60;
-        const circumference = 2 * Math.PI * radius;
-        const offset = circumference - (jobMatchScore / 100) * circumference;
-
-        circle.style.strokeDasharray = circumference;
-        setTimeout(() => {
-            circle.style.strokeDashoffset = offset;
-        }, 500);
-    }
-
-    if (jobMatchScore >= 70) {
-        confetti({
-            particleCount: 120,
-            spread: 70,
-            origin: { y: 0.6 },
-            colors: ['#a78bfa', '#f472b6', '#ffffff']
-        });
-    }
-
+// Doughnut Chart
+new Chart(document.getElementById('doughnutChart'), {
+    type: 'doughnut',
+    data: {
+        labels: labels,
+        datasets: [{
+            data: data,
+            backgroundColor: ['#a78bfa', '#f472b6', '#6366f1', '#fbbf24', '#2dd4bf'],
+            borderWidth: 0
+        }]
+    },
+    options: { cutout: '70%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 15 } } } }
 });
 </script>
+
 {% endblock %}

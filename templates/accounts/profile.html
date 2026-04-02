@@ -3,9 +3,12 @@
 
 {% block content %}
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <style>
 :root {
     --primary-gradient: linear-gradient(135deg, #a78bfa, #f472b6);
+    --secondary-gradient: linear-gradient(135deg, #312e81, #6366f1);
     --text-main: #1e1b4b;
     --text-muted: #64748b;
 }
@@ -13,284 +16,319 @@
 body {
     background: #fdf2f8;
     font-family: 'Inter', sans-serif;
+    color: var(--text-main);
 }
 
 /* Glass Card */
 .glass-card {
-    background: rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.85);
     backdrop-filter: blur(12px);
-    border-radius: 20px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    transition: 0.3s;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+    transition: all 0.3s ease;
 }
 
 .glass-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
 }
 
 /* Profile Image */
-.profile-img {
-    width: 140px;
-    height: 140px;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 4px solid #fbcfe8;
+.profile-img-wrapper {
+    position: relative;
+    display: inline-block;
 }
 
-/* Gradient Button */
+.profile-img {
+    width: 130px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.verified-check {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: #10b981;
+    color: white;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid white;
+    font-size: 14px;
+}
+
+/* Buttons */
 .btn-gradient {
     background: var(--primary-gradient);
     color: white;
     border: none;
-    border-radius: 12px;
-    padding: 8px 16px;
+    border-radius: 14px;
+    padding: 10px 20px;
     font-weight: 600;
+    transition: 0.3s;
+}
+.btn-gradient:hover {
+    opacity: 0.9;
+    color: white;
+    transform: scale(1.02);
 }
 
-/* Progress */
-.progress {
-    height: 10px;
-    border-radius: 20px;
+/* Info Labels */
+.info-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.info-value {
+    font-weight: 500;
+    color: var(--text-main);
+    margin-bottom: 15px;
 }
 
 /* Achievement Cards */
-.achievement-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
 .achievement-card {
-    background: linear-gradient(135deg,#312e81,#6366f1);
+    background: var(--secondary-gradient);
     color: white;
-    padding: 16px;
-    border-radius: 16px;
-    width: 200px;
+    padding: 20px;
+    border-radius: 20px;
+    width: 220px;
     text-align: center;
-    position: relative;
+    transition: 0.3s;
 }
 
-.badge-orb {
-    font-size: 24px;
-    margin-bottom: 10px;
-}
-
-.claimed-status {
-    font-size: 12px;
-    opacity: 0.8;
-}
-
-/* Links */
-.profile-link {
-    color: #7c3aed;
-    text-decoration: none;
-}
-
-.profile-link:hover {
-    text-decoration: underline;
-}
-.empty-state {
-    border: 2px dashed #e2e8f0;
-    border-radius: 16px;
-    padding: 30px;
-    text-align: center;
-    width: 100%;
-}
-
-.empty-icon {
-    width: 50px;
-    height: 50px;
-    margin: auto;
+.badge-icon-lg {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    background: rgba(255,255,255,0.2);
+    width: 70px;
+    height: 70px;
+    line-height: 70px;
     border-radius: 50%;
-    background: rgba(167,139,250,0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.empty-title {
+/* Progress List */
+.progress-item {
+    border: none;
+    background: transparent;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.progress-pill {
+    background: var(--primary-gradient);
+    padding: 5px 12px;
+    border-radius: 12px;
     font-weight: 700;
-}
-
-.empty-subtext {
-    font-size: 0.85rem;
-    color: #64748b;
-}
-.achievement-container:empty {
-    display: none;
+    font-size: 13px;
 }
 </style>
 
-<div class="container mt-5">
+<div class="container py-5">
 
-<div class="row g-4">
+    <div class="row g-4">
 
-<!-- ================= LEFT PROFILE ================= -->
-<div class="col-lg-4">
+        <div class="col-lg-4">
+            <div class="glass-card p-4 text-center">
+                <div class="profile-img-wrapper mb-3">
+                    {% if profile.profile_picture %}
+                        <img src="{{ profile.profile_picture.url }}" class="profile-img">
+                    {% else %}
+                        <img src="{% static 'default.png' %}" class="profile-img">
+                    {% endif %}
+                    
+                    {% if profile.is_verified %}
+                        <div class="verified-check" title="Verified Professional">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                    {% endif %}
+                </div>
 
-<div class="glass-card p-4 text-center">
+                <h4 class="fw-bold mb-1">{{ user.username }}</h4>
+                <p class="text-muted small mb-3">
+                    <i class="fa-regular fa-envelope me-1"></i> {{ user.email }}
+                </p>
 
-{% if profile.profile_picture %}
-<img src="{{ profile.profile_picture.url }}" class="profile-img mb-3">
-{% else %}
-<img src="{% static 'default.png' %}" class="profile-img mb-3">
-{% endif %}
+                <p class="text-muted px-2 mb-4">
+                    <i class="fa-solid fa-quote-left fa-xs opacity-50"></i>
+                    {{ profile.bio|default:"Sharing my journey and building skills one day at a time." }}
+                    <i class="fa-solid fa-quote-right fa-xs opacity-50"></i>
+                </p>
 
-<h4 class="fw-bold">{{ user.username }}</h4>
-<p class="text-muted small">{{ user.email }}</p>
-
-<p class="text-muted">{{ profile.bio|default:"No bio added yet." }}</p>
-
-<a href="{% url 'edit_profile' %}" class="btn btn-gradient mt-2">
-Edit Profile
-</a>
-
-</div>
-
-<!-- Stats -->
-<div class="glass-card p-4 mt-4">
-
-<h5 class="fw-bold mb-3">Profile Stats</h5>
-
-<p><strong>Skill Score:</strong> {{ profile.skill_score }}</p>
-
-<p class="mb-1"><strong>Profile Completion</strong></p>
-
-<div class="progress mb-3">
-<div class="progress-bar"
-     style="width: {{ profile.profile_completion }}%;
-            background: linear-gradient(135deg,#a78bfa,#f472b6);">
-</div>
-</div>
-
-<p><strong>Achievements:</strong> {{ achievements.count }}</p>
-
-{% if profile.is_verified %}
-<span class="badge bg-success">Verified</span>
-{% else %}
-<span class="badge bg-secondary">Not Verified</span>
-{% endif %}
-
-</div>
-
-</div>
-
-<!-- ================= RIGHT CONTENT ================= -->
-<div class="col-lg-8">
-
-<!-- Professional Info -->
-<div class="glass-card p-4">
-
-<h5 class="fw-bold mb-3">Professional Information</h5>
-
-<p><strong>Career Goal:</strong> {{ profile.career_goal|default:"Not set" }}</p>
-<p><strong>Experience:</strong> {{ profile.experience_level }}</p>
-<p><strong>Education:</strong> {{ profile.current_education|default:"Not set" }}</p>
-<p><strong>University:</strong> {{ profile.university|default:"Not set" }}</p>
-
-</div>
-
-<!-- Links -->
-<div class="glass-card p-4 mt-4">
-
-<h5 class="fw-bold mb-3">Professional Links</h5>
-
-<p><strong>LinkedIn:</strong>
-<a href="{{ profile.linkedin }}" class="profile-link" target="_blank">
-{{ profile.linkedin|default:"Not added" }}
-</a>
-</p>
-
-<p><strong>GitHub:</strong>
-<a href="{{ profile.github }}" class="profile-link" target="_blank">
-{{ profile.github|default:"Not added" }}
-</a>
-</p>
-
-<p><strong>Portfolio:</strong>
-<a href="{{ profile.portfolio }}" class="profile-link" target="_blank">
-{{ profile.portfolio|default:"Not added" }}
-</a>
-</p>
-
-</div>
-
-<!-- Resume -->
-<div class="glass-card p-4 mt-4">
-
-<h5 class="fw-bold mb-3">Resume</h5>
-
-{% if profile.resume %}
-<a href="{{ profile.resume.url }}" target="_blank" class="btn btn-gradient mb-3">
-View Resume
-</a>
-{% else %}
-<p class="text-muted">No resume uploaded</p>
-{% endif %}
-
-<form method="POST" enctype="multipart/form-data">
-{% csrf_token %}
-
-<input type="file" name="resume" class="form-control mb-2">
-
-<button class="btn btn-gradient w-100">
-Upload Resume
-</button>
-
-</form>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- ================= ACHIEVEMENTS ================= -->
-<div class="glass-card p-4 mt-5">
-
-<h4 class="fw-bold mb-3">Your Achievements 🏆</h4>
-
-{% if claimed_achievements %}
-    <div class="achievement-container">
-        {% for badge in claimed_achievements %}
-        <div class="achievement-card">
-            <div class="badge-orb">
-                <i class="fa-solid fa-award"></i>
+                <a href="{% url 'edit_profile' %}" class="btn btn-gradient w-100">
+                    <i class="fa-solid fa-user-pen me-2"></i>Edit Profile
+                </a>
             </div>
-            <div class="fw-bold">{{ badge.name }}</div>
-            <div class="small">{{ badge.description }}</div>
+
+            <div class="glass-card p-4 mt-4">
+                <h6 class="fw-bold mb-4 d-flex align-items-center">
+                    <i class="fa-solid fa-chart-simple me-2 text-primary"></i>Analytics Overview
+                </h6>
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small text-muted fw-medium">Skill Score</span>
+                    <span class="fw-bold text-primary">{{ profile.skill_score }}</span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="small text-muted fw-medium">Profile Integrity</span>
+                    <span class="small fw-bold">{{ profile.profile_completion }}%</span>
+                </div>
+                <div class="progress mb-4" style="height: 8px;">
+                    <div class="progress-bar" style="width: {{ profile.profile_completion }}%; background: var(--primary-gradient);"></div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="small text-muted fw-medium">Milestones</span>
+                    <span class="badge rounded-pill bg-light text-dark border">{{ achievements.count }} Unlocked</span>
+                </div>
+            </div>
         </div>
-        {% endfor %}
+
+        <div class="col-lg-8">
+            <div class="glass-card p-4">
+                <h5 class="fw-bold mb-4 d-flex align-items-center">
+                    <i class="fa-solid fa-briefcase me-2 text-primary"></i>Professional Summary
+                </h5>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-label"><i class="fa-solid fa-bullseye"></i> Career Goal</div>
+                        <div class="info-value">{{ profile.career_goal|default:"Strategic Growth" }}</div>
+                        
+                        <div class="info-label"><i class="fa-solid fa-graduation-cap"></i> Education</div>
+                        <div class="info-value">{{ profile.current_education|default:"Learning Mode" }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-label"><i class="fa-solid fa-medal"></i> Expertise</div>
+                        <div class="info-value">{{ profile.experience_level }}</div>
+
+                        <div class="info-label"><i class="fa-solid fa-university"></i> Institution</div>
+                        <div class="info-value">{{ profile.university|default:"Independent Learner" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mt-1">
+                <div class="col-md-7">
+                    <div class="glass-card p-4 h-100">
+                        <h5 class="fw-bold mb-4 d-flex align-items-center">
+                            <i class="fa-solid fa-link me-2 text-primary"></i>Connect
+                        </h5>
+                        
+                        <div class="mb-3">
+                            <div class="info-label"><i class="fa-brands fa-linkedin text-primary"></i> LinkedIn</div>
+                            <a href="{{ profile.linkedin }}" class="profile-link small fw-bold" target="_blank">
+                                {{ profile.linkedin|default:"Add LinkedIn Link" }}
+                            </a>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="info-label"><i class="fa-brands fa-github text-dark"></i> GitHub</div>
+                            <a href="{{ profile.github }}" class="profile-link small fw-bold" target="_blank">
+                                {{ profile.github|default:"Add GitHub Link" }}
+                            </a>
+                        </div>
+
+                        <div>
+                            <div class="info-label"><i class="fa-solid fa-globe text-success"></i> Portfolio</div>
+                            <a href="{{ profile.portfolio }}" class="profile-link small fw-bold" target="_blank">
+                                {{ profile.portfolio|default:"Add Portfolio Link" }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-5">
+                    <div class="glass-card p-4 h-100">
+                        <h5 class="fw-bold mb-4 d-flex align-items-center">
+                            <i class="fa-solid fa-file-pdf me-2 text-danger"></i>Resume
+                        </h5>
+                        
+                        {% if profile.resume %}
+                        <a href="{{ profile.resume.url }}" target="_blank" class="btn btn-outline-dark btn-sm w-100 mb-3 rounded-pill">
+                            <i class="fa-solid fa-eye me-2"></i>View Current
+                        </a>
+                        {% endif %}
+
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <label class="small fw-bold text-muted mb-1">Update Document</label>
+                            <input type="file" name="resume" class="form-control form-control-sm mb-3">
+                            <button class="btn btn-gradient w-100 py-2">
+                                <i class="fa-solid fa-cloud-arrow-up me-1"></i> Upload
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-{% else %}
-    <p class="text-muted mb-0">No badges claimed yet.</p>
-{% endif %}
 
-</div>
+    <div class="glass-card p-4 mt-5">
+        <h4 class="fw-bold mb-4 d-flex align-items-center">
+            <i class="fa-solid fa-trophy text-warning me-3"></i>Milestones Unlocked
+        </h4>
 
-<!-- ================= CAREER PROGRESS ================= -->
-<div class="glass-card p-4 mt-5">
+        {% if claimed_achievements %}
+            <div class="d-flex flex-wrap gap-4 justify-content-center justify-content-lg-start">
+                {% for badge in claimed_achievements %}
+                <div class="achievement-card">
+                    <div class="badge-icon-lg">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                    <div class="fw-bold text-uppercase small letter-spacing-1 mb-1">{{ badge.name }}</div>
+                    <div class="small opacity-75">{{ badge.description|truncatechars:40 }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <i class="fa-solid fa-lock fa-3x mb-3 text-muted opacity-25"></i>
+                <p class="text-muted">Start completing courses to earn specialized badges.</p>
+            </div>
+        {% endif %}
+    </div>
 
-<h5 class="fw-bold mb-3">Career Progress</h5>
+    <div class="glass-card p-4 mt-5 mb-5">
+        <h5 class="fw-bold mb-4 d-flex align-items-center">
+            <i class="fa-solid fa-diagram-project me-3 text-primary"></i>Career Path Roadmap
+        </h5>
 
-<ul class="list-group">
-
-{% for p in progress %}
-<li class="list-group-item d-flex justify-content-between align-items-center">
-{{ p.job_role }}
-<span class="badge"
-style="background:linear-gradient(135deg,#a78bfa,#f472b6);">
-{{ p.completion_percentage }}%
-</span>
-</li>
-{% empty %}
-<li class="list-group-item text-muted">No data</li>
-{% endfor %}
-
-</ul>
-
-</div>
+        <ul class="list-group list-group-flush">
+            {% for p in progress %}
+            <li class="list-group-item progress-item d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="me-3 text-primary"><i class="fa-solid fa-circle-check"></i></div>
+                    <span class="fw-bold">{{ p.job_role }}</span>
+                </div>
+                <span class="progress-pill text-white">
+                    {{ p.completion_percentage }}% Complete
+                </span>
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted text-center border-0 py-4">
+                <i class="fa-solid fa-hourglass-start me-2"></i>No active path progress found.
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
 
 </div>
 

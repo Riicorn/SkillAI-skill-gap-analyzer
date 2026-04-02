@@ -57,13 +57,14 @@ def onboarding_view(request):
             return render(request, 'accounts/onboarding.html', {
                 'job_roles': job_roles,
                 'available_skills': available_skills,
-                'error': "Please select a strategic goal."
+                'error': "Please select a role."
             })
 
-        # Save role in session
-        request.session["target_role_id"] = int(selected_role_id)
+        from .models import UserProfile
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        profile.target_role_id = selected_role_id
+        profile.save()
 
-        # Save user skills
         for skill_id in selected_skills:
             level_value = request.POST.get(f'level_{skill_id}')
 
@@ -73,9 +74,7 @@ def onboarding_view(request):
                 UserSkill.objects.update_or_create(
                     user=request.user,
                     skill=skill,
-                    defaults={
-                        "level": int(level_value)
-                    }
+                    defaults={"level": int(level_value)}
                 )
 
         return redirect('dashboard')
@@ -83,78 +82,134 @@ def onboarding_view(request):
     return render(request, 'accounts/onboarding.html', {
         'job_roles': job_roles,
         'available_skills': available_skills
-    })                
+    })
     
 # 4️⃣ Dashboard
-from skills.utils import calculate_skill_gap
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from skills.models import UserSkill
+import json
 
 @login_required
 def dashboard_view(request):
     user = request.user
 
     user_skills = UserSkill.objects.filter(user=user)
-    skills = user_skills
 
-    total_skills = user_skills.count()
+    # 🔥 SORT SKILLS (highest → lowest)
+    skills = user_skills.order_by('-level')
 
+
+
+    total_skills = len(skills)
+
+    # =============================
+    # 📊 AVERAGE
+    # =============================
     if total_skills > 0:
-        avg_level = sum([s.level for s in user_skills]) / total_skills
+        avg_level = sum([s.level for s in skills]) / total_skills
     else:
         avg_level = 0
 
     avg_percentage = int((avg_level / 5) * 100)
 
     # =============================
-    # 🎯 TARGET ROLE
+    # 🧠 LEVEL
     # =============================
-    role_id = request.session.get("target_role_id")
-
-    target_role = None
-    missing_skills = []
-    job_match_score = 0
-
-    if role_id:
-        target_role = JobRole.objects.filter(id=role_id).first()
-
-    if target_role:
-        gaps, total_gap_score = calculate_skill_gap(user, target_role)
-
-        job_match_score = total_gap_score
-        missing_skills = list(gaps.keys())
-
-    # =============================
-    # 📊 LEVEL
-    # =============================
-    if job_match_score < 30:
+    if avg_percentage < 30:
         level = "Beginner"
-    elif job_match_score < 60:
+    elif avg_percentage < 60:
         level = "Explorer"
-    elif job_match_score < 80:
+    elif avg_percentage < 80:
         level = "Pro"
     else:
-        level = "AI Master"
+        level = "Master"
 
+    # =============================
+    # ⭐ STRONGEST & WEAKEST (SAFE)
+    # =============================
+    # =============================
+# ⭐ STRONGEST & WEAKEST (SAFE)
+# =============================
+        strongest = skills.first()
+        weakest = user_skills.order_by('level').first()
+
+        strongest_skill = {
+            "name": strongest.skill.name if strongest else None,
+            "level": strongest.level if strongest else None
+        }
+
+        weakest_skill = {
+            "name": weakest.skill.name if weakest else None,
+            "level": weakest.level if weakest else None
+        }
     # =============================
     # 📈 CHART DATA
     # =============================
-    skill_labels = [s.skill.name for s in user_skills]
-    skill_data = [(s.level / 5) * 100 for s in user_skills]
+    skill_labels = [s.skill.name for s in skills]
+    skill_data = [(s.level / 5) * 100 for s in skills]
 
+    # =============================
+    # 📦 CONTEXT
+    # =============================
     context = {
         "skills": skills,
-        "target_role": target_role,
-        "missing_skills": missing_skills,
         "total_skills": total_skills,
         "avg_proficiency": avg_percentage,
-        "job_match_score": job_match_score,
         "level": level,
-        "skill_labels": skill_labels,
-        "skill_data": skill_data,
+
+        # 🔥 NEW (for UI)
+        "strongest_skill": strongest_skill,
+        "weakest_skill": weakest_skill,
+
+        # 📊 charts
+        "skill_labels": json.dumps(skill_labels),
+        "skill_data": json.dumps(skill_data),
     }
 
-    return render(request, "dashboard/dashboard.html", context)
+    return render(request, "accounts/dashboard.html", context)
 # 5️⃣ Custom Login
+@login_required
+def onboarding_view(request):
+    job_roles = JobRole.objects.all()
+    available_skills = Skill.objects.all()
 
+    if request.method == 'POST':
+        selected_role_id = request.POST.get('job_role')
+        selected_skills = request.POST.getlist('skills')
+
+        if not selected_role_id:
+            return render(request, 'accounts/onboarding.html', {
+                'job_roles': job_roles,
+                'available_skills': available_skills,
+                'error': "Please select a role."
+            })
+
+        # ✅ SAVE ROLE IN DATABASE (NOT SESSION)
+        from .models import UserProfile
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        profile.target_role_id = selected_role_id
+        profile.save()
+
+        # ✅ SAVE SKILLS
+        for skill_id in selected_skills:
+            level_value = request.POST.get(f'level_{skill_id}')
+
+            if level_value:
+                skill = Skill.objects.get(pk=skill_id)
+
+                UserSkill.objects.update_or_create(
+                    user=request.user,
+                    skill=skill,
+                    defaults={"level": int(level_value)}
+                )
+
+        return redirect('dashboard')
+
+    return render(request, 'accounts/onboarding.html', {
+        'job_roles': job_roles,
+        'available_skills': available_skills
+    })
 
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login
@@ -184,7 +239,7 @@ def custom_login(request):
     return render(request, "account/login.html", {"form": form})
 
     from django.contrib.auth.decorators import login_required
-from skills.models import UserSkill
+from skills.models import UserSkill, JobRole
 from recommendations.models import UserAchievement
 from django.shortcuts import render
 
@@ -213,6 +268,13 @@ def profile_view(request):
     # ✅ Career progress
     progress = CareerProgress.objects.filter(user=user)
 
+    if not progress.exists() and profile.career_goal:
+        CareerProgress.objects.create(
+        user=user,
+        job_role=profile.career_goal,
+        completion_percentage=10
+    )
+    progress = CareerProgress.objects.filter(user=user)
     total_achievements = claimed_achievements.count()
 
     # =============================
